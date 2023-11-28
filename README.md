@@ -3,7 +3,7 @@
 [![Crate](https://img.shields.io/crates/v/console-utils.svg)](https://crates.io/crates/console-utils)
 [![API](https://docs.rs/console-utils/badge.svg)](https://docs.rs/console-utils)
 
-A simple Rust library for console-based user input and option selection.
+A simple Rust library for console-based user input, option selection and more.
 
 ## Input Function
 
@@ -56,4 +56,30 @@ fn main() {
     }
 }
 ```
+
+## Spinner Function
+
+The spinner function creates a console-based spinner animation, offering a visually appealing way to indicate ongoing processes.
+
+### Usage
+
+```rust
+use console_utils::{spinner, SpinnerType};
+
+// Display a standard spinner for 3 seconds
+spinner(3.0, SpinnerType::Standard);
+
+// Display a dots spinner for 2 seconds
+spinner(2.0, SpinnerType::Dots);
+
+// Display a custom spinner for 1 second (using a custom frame)
+spinner(1.0, SpinnerType::Custom("@ "));
+
+// Display a box spinner for 1.5 seconds
+spinner(1.5, SpinnerType::Box);
+
+// Display a flip spinner for 2 seconds
+spinner(2.0, SpinnerType::Flip);
+```
+
 For more detailed documentation, please refer to the [generated Rust Docs](https://crates.io/crates/console-utils).

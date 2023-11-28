@@ -190,7 +190,12 @@ pub enum SpinnerType {
 /// # Parameters
 ///
 /// - `time`: A floating-point number representing the duration of the spinner animation in seconds.
-/// - `spinner_type`: The type of spinner to display.
+/// - `spinner_type`: The type of spinner to display, which can be one of the following:
+///     - `SpinnerType::Standard`: Standard spinner with characters / - \ |.
+///     - `SpinnerType::Dots`: Spinner with dots . .. ... .....
+///     - `SpinnerType::Box`: Spinner with box characters ▌ ▀ ▐ ▄.
+///     - `SpinnerType::Flip`: Spinner with flip characters _ _ _ - \ ' ´ - _ _ _.
+///     - `SpinnerType::Custom(frame)`: Custom spinner with a user-defined frame.
 ///
 /// # Example
 ///
