@@ -1,0 +1,16 @@
+[package]
+name = "console-utils"
+version = "1.0.0"
+edition = "2021"
+authors = ["Nils Wrenger <nils@wrenger.net>"]
+description = "Cli input utilities."
+keywords = ["input", "select", "option"]
+categories = ["console", "terminal", "cli"]
+repository = "https://github.com/nwrenger/input.rs"
+readme = "README.md"
+license = "MIT"
+
+[lib]
+
+[dependencies]
+console = "0.15.7"
