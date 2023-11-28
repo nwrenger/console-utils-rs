@@ -1,6 +1,6 @@
 //! A simple library for console-based user input and option selection.
 
-use console::{Key, Term};
+use console::{style, Key, Term};
 use std::io::{self, Write};
 
 /// Reads user input from the console.
@@ -136,7 +136,7 @@ pub fn select(
                             matrix[i] = false;
                         } else {
                             stdout
-                                .write_line(&("[*] ".to_owned() + &options[i]))
+                                .write_line(&(format!("[{}] ", style("*").cyan()) + &options[i]))
                                 .unwrap();
                             matrix[i] = true;
                         }
