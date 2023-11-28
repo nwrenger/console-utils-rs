@@ -1,7 +1,11 @@
 //! A simple library for console-based user input and option selection.
 
 use console::{style, Key, Term};
-use std::io::{self, Write};
+use std::{
+    io::{self, Write},
+    thread,
+    time::Duration,
+};
 
 /// Reads user input from the console.
 ///
@@ -169,4 +173,62 @@ fn reset(stdout: Term, mes: &str, len: usize) {
     stdout.move_cursor_down(len).unwrap();
     stdout.flush().unwrap();
     println!("{mes}");
+}
+
+/// Enumeration representing different types of spinners.
+#[derive(Debug, Clone)]
+pub enum SpinnerType {
+    Standard,
+    Dots,
+    Box,
+    Flip,
+    Custom(Vec<&'static str>),
+}
+
+/// Displays a console-based spinner animation.
+///
+/// # Parameters
+///
+/// - `time`: A floating-point number representing the duration of the spinner animation in seconds.
+/// - `spinner_type`: The type of spinner to display.
+///
+/// # Example
+///
+/// ```rust
+/// use console_utils::{spinner, SpinnerType};
+///
+/// // Display a standard spinner for 3 seconds
+/// spinner(3.0, SpinnerType::Standard);
+///
+/// // Display a custom spinner for 2 seconds
+/// spinner(2.0, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]));
+/// ```
+pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
+    let stdout = Term::buffered_stdout();
+    let mut i = 0;
+
+    while time > 0.0 {
+        stdout.clear_line().unwrap();
+        let frame = match spinner_type {
+            SpinnerType::Standard => vec!["/", "-", "\\", "|"],
+            SpinnerType::Dots => vec![".", "..", "...", "....", "...", ".."],
+            SpinnerType::Box => vec!["▌", "▀", "▐", "▄"],
+            SpinnerType::Flip => vec!["_", "_", "_", "-", "`", "`", "'", "´", "-", "_", "_", "_"],
+            SpinnerType::Custom(ref custom_frame) => custom_frame.to_vec(),
+        };
+        stdout.write_line(frame[i]).unwrap();
+        stdout.move_cursor_up(1).unwrap();
+        stdout.move_cursor_right(frame[i].len()).unwrap();
+        stdout.flush().unwrap();
+        thread::sleep(Duration::from_secs_f64(0.075));
+        time -= 0.075;
+        if i < frame.len() - 1 {
+            i += 1
+        } else {
+            i = 0
+        }
+    }
+
+    stdout.clear_line().unwrap();
+    stdout.flush().unwrap();
 }

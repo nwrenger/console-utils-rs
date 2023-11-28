@@ -1,11 +1,11 @@
 [package]
 name = "console-utils"
-version = "1.0.3"
+version = "1.1.4"
 edition = "2021"
 authors = ["Nils Wrenger <nils@wrenger.net>"]
 description = "Cli input utilities."
-keywords = ["input", "select", "option"]
-categories = ["console", "terminal", "cli"]
+keywords = ["console", "terminal", "cli"]
+categories = ["command-line-utilities", "cli"]
 repository = "https://github.com/nwrenger/console-utils-rs"
 readme = "README.md"
 license = "MIT"
