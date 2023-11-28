@@ -75,9 +75,9 @@ pub fn input(before: &str, allow_empty: bool, new_line: bool) -> Option<String> 
 /// use console_utils::select;
 ///
 /// let options = vec![
-///     "Option 1".to_string(),
-///     "Option 2".to_string(),
-///     "Option 3".to_string(),
+///     "Option 1",
+///     "Option 2",
+///     "Option 3",
 /// ];
 ///
 /// let selected_indices = select("Select an option:", &options, false, false);
@@ -93,7 +93,7 @@ pub fn input(before: &str, allow_empty: bool, new_line: bool) -> Option<String> 
 /// ```
 pub fn select(
     before: &str,
-    options: &[String],
+    options: &[&str],
     allow_empty: bool,
     multiple: bool,
 ) -> Option<Vec<bool>> {
@@ -130,13 +130,11 @@ pub fn select(
                     Key::Char(' ') => {
                         stdout.clear_line().unwrap();
                         if matrix[i] {
-                            stdout
-                                .write_line(&("[ ] ".to_owned() + &options[i]))
-                                .unwrap();
+                            stdout.write_line(&format!("[ ] {}", options[i])).unwrap();
                             matrix[i] = false;
                         } else {
                             stdout
-                                .write_line(&(format!("[{}] ", style("*").cyan()) + &options[i]))
+                                .write_line(&format!("[{}] {}", style("*").cyan(), options[i]))
                                 .unwrap();
                             matrix[i] = true;
                         }

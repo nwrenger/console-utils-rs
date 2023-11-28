@@ -17,7 +17,7 @@ fn test_input() {
 #[ignore]
 fn test_select() {
     // Run the function with simulated input and captured output
-    let result = select("Select an option:", &["Option 1".to_string()], false, false);
+    let result = select("Select an option:", &["Option 1"], false, false);
 
     // select the first option using spacebar and click enter
 

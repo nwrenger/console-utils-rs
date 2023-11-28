@@ -37,9 +37,9 @@ use console_utils::select;
 
 fn main() {
     let options = vec![
-        "Option 1".to_string(),
-        "Option 2".to_string(),
-        "Option 3".to_string(),
+        "Option 1",
+        "Option 2",
+        "Option 3",
     ];
 
     // Prompt the user to select options
