@@ -56,4 +56,4 @@ fn main() {
     }
 }
 ```
-For more detailed documentation, please refer to the `Rust doc generated documentation`.
+For more detailed documentation, please refer to the [generated Rust Docs](https://crates.io/crates/console-utils).
