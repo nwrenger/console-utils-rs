@@ -82,4 +82,4 @@ spinner(1.5, SpinnerType::Box);
 spinner(2.0, SpinnerType::Flip);
 ```
 
-For more detailed documentation, please refer to the [generated Rust Docs](https://crates.io/crates/console-utils).
+For more detailed documentation, please refer to the [generated Rust Docs](https://docs.rs/console-utils/latest/console_utils/).
