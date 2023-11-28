@@ -26,6 +26,7 @@ use std::io::{self, Write};
 /// use console_utils::input;
 ///     
 /// let user_input = input("Enter something: ", false, false);
+///
 /// match user_input {
 ///     Some(value) => println!("You entered: {}", value),
 ///     None => println!("Input is empty."),
