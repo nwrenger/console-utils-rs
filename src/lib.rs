@@ -272,14 +272,9 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
 /// reveal("Hello World!", 0.1, true);
 /// ```
 pub fn reveal(str: &str, time_between: f64, new_line: bool) {
-    let stdout = Term::buffered_stdout();
-
     for i in 0..str.len() {
-        stdout.clear_line().unwrap();
-        stdout.write_line(str.get(0..=i).unwrap()).unwrap();
-        stdout.move_cursor_up(1).unwrap();
-        stdout.move_cursor_right(i + 1).unwrap();
-        stdout.flush().unwrap();
+        print!("{}", str.chars().nth(i).unwrap());
+        io::stdout().flush().unwrap();
         thread::sleep(Duration::from_secs_f64(time_between));
     }
 
