@@ -21,22 +21,26 @@ use std::{
 ///
 /// # Returns
 ///
-/// Returns an `Option<String>` containing the user's input or `None` if the input is empty and
-/// `allow_empty` is `false`.
+/// Returns an `Option<T>` containing the user's input converted to the specified type,
+/// or `None` if the input is empty and `allow_empty` is `true`.
 ///
 /// # Example
 ///
 /// ```no_run
 /// use console_utils::input;
 ///     
-/// let user_input = input("Enter something: ", false, false);
+/// let user_input = input::<String>("Enter something: ", false, false);
 ///
 /// match user_input {
 ///     Some(value) => println!("You entered: {}", value),
-///     None => println!("Input is empty."),
+///     None => panic!("The Input cannot be None, allow_empty is false."),
 /// }
 /// ```
-pub fn input(before: &str, allow_empty: bool, new_line: bool) -> Option<String> {
+pub fn input<T>(before: &str, allow_empty: bool, new_line: bool) -> Option<T>
+where
+    T: std::str::FromStr,
+    T::Err: std::fmt::Debug,
+{
     loop {
         print!("{before} {}", if new_line { '\n' } else { '\0' });
         io::stdout().flush().unwrap();
@@ -47,7 +51,10 @@ pub fn input(before: &str, allow_empty: bool, new_line: bool) -> Option<String> 
         if allow_empty && cli.trim().is_empty() {
             return None;
         } else if !cli.trim().is_empty() {
-            return Some(cli.trim().to_owned());
+            match cli.trim().parse() {
+                Ok(value) => return Some(value),
+                Err(_) => println!("\nWrong Input Type\n"),
+            }
         } else {
             println!("\nWrong Input\n");
         }
@@ -71,7 +78,7 @@ pub fn input(before: &str, allow_empty: bool, new_line: bool) -> Option<String> 
 /// # Returns
 ///
 /// Returns an `Option<Vec<bool>>` containing a vector of booleans indicating which options were
-/// selected. Returns `None` if no option was selected and `allow_empty` is `false`.
+/// selected. Returns `None` if no option was selected and `allow_empty` is `true`.
 ///
 /// # Example
 ///
@@ -163,7 +170,7 @@ pub fn select(
             reset(stdout, "", options.len());
             return Some(matrix);
         } else {
-            reset(stdout, "\nWrong Input\n", options.len());
+            reset(stdout, "\nPlease Select any option!\n", options.len());
         }
     }
 }

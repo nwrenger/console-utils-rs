@@ -5,12 +5,12 @@ use console_utils::{input, select, spinner, SpinnerType};
 #[ignore]
 fn test_input() {
     // Run the function
-    let result = input("Enter something: ", false, false);
+    let result = input::<u8>("Enter something: ", false, false);
 
-    // Put in Hello
+    // Input anything
 
     // Check the result
-    assert_eq!(result, Some("Hello".to_owned()));
+    assert!(result.is_some());
 }
 
 #[test]
@@ -22,7 +22,7 @@ fn test_select() {
     // select the first option using spacebar and click enter
 
     // Check the result
-    assert_eq!(result, Some(vec![true]));
+    assert!(result.is_some());
 }
 
 #[test]

@@ -7,7 +7,7 @@ A simple Rust library for console-based user input, option selection and more.
 
 ## Input Function
 
-The `input` function reads user input from the console. It prompts the user with a message, reads a line of input, and returns an `Option<String>`.
+The `input` function reads user input from the console. It prompts the user with a message, reads a line of input, and returns an `Option<T>`.
 
 ### Usage
 
@@ -16,12 +16,12 @@ use console_utils::input;
 
 fn main() {
     // Prompt the user for input
-    let user_input = input("Enter something: ", false, false);
+    let user_input = input::<String>("Enter something: ", false, false);
 
     // Process the user input
     match user_input {
         Some(value) => println!("You entered: {}", value),
-        None => println!("Input is empty."),
+        None => panic!("The Input cannot be None, allow_empty is false."),
     }
 }
 ```
@@ -52,7 +52,7 @@ fn main() {
                 println!("Option {} selected: {}", i + 1, selected);
             }
         }
-        None => println!("No options selected."),
+        None => panic!("The Options cannot be None, allow_empty is false."),
     }
 }
 ```
