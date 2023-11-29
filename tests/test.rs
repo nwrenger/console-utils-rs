@@ -1,5 +1,5 @@
 // Import the functions to be tested from the crate root
-use console_utils::{input, select, spinner, SpinnerType};
+use console_utils::{input, reveal, select, spinner, SpinnerType};
 
 #[test]
 #[ignore]
@@ -32,4 +32,10 @@ fn test_spinner() {
 
     // Custom Spinner
     spinner(1.0, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]))
+}
+
+#[test]
+fn test_reveal() {
+    // Give the fn the str and time, prints it delayed with a new line.
+    reveal(0.1, "Hello World!", true);
 }

@@ -82,4 +82,17 @@ spinner(1.5, SpinnerType::Box);
 spinner(2.0, SpinnerType::Flip);
 ```
 
+## Reveal Function
+
+Displays a string gradually, revealing one character at a time with a specified time interval between each character.
+
+### Usage
+
+```rust
+use console_utils::reveal;
+
+// Display "Hello World!" with a time interval of 0.1 seconds between each character and a new line after it's finished.
+reveal(0.1, "Hello World!", true);
+```
+
 For more detailed documentation, please refer to the [generated Rust Docs](https://docs.rs/console-utils/latest/console_utils/).

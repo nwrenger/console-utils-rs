@@ -1,4 +1,4 @@
-//! A simple library for console-based user input and option selection.
+//! A simple library for console-based user input, option selection and more.
 
 use console::{style, Key, Term};
 use std::{
@@ -250,4 +250,40 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
 
     stdout.clear_line().unwrap();
     stdout.flush().unwrap();
+}
+
+/// Reveal Function
+///
+/// Displays a string gradually, revealing one character at a time with a specified time interval
+/// between each character.
+///
+/// # Arguments
+///
+/// * `time_between` - The time interval (in seconds) between each revealed character.
+/// * `str` - The string to reveal gradually.
+/// * `new_line` - If true, adds a newline character after the revelation.
+///
+/// # Example
+///
+/// ```rust
+/// use console_utils::reveal;
+///
+/// // Display "Hello World!" with a time interval of 0.1 seconds between each character and a new line after it's finished.
+/// reveal(0.1, "Hello World!", true);
+/// ```
+pub fn reveal(time_between: f64, str: &str, new_line: bool) {
+    let stdout = Term::buffered_stdout();
+
+    for i in 0..str.len() {
+        stdout.clear_line().unwrap();
+        stdout.write_line(str.get(0..=i).unwrap()).unwrap();
+        stdout.move_cursor_up(1).unwrap();
+        stdout.move_cursor_right(i + 1).unwrap();
+        stdout.flush().unwrap();
+        thread::sleep(Duration::from_secs_f64(time_between));
+    }
+
+    if new_line {
+        println!();
+    }
 }
