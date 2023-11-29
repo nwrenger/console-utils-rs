@@ -186,17 +186,13 @@ pub enum SpinnerType {
 }
 
 impl SpinnerType {
-    /// Converts the spinner type to a vector of frames.
-    ///
-    /// # Returns
-    ///
-    /// Returns a vector of strings representing frames for the spinner, gives back the following variants:
-    ///     - `SpinnerType::Standard`: Standard spinner with characters / - \ |.
-    ///     - `SpinnerType::Dots`: Spinner with dots . .. ... .....
-    ///     - `SpinnerType::Box`: Spinner with box characters ▌ ▀ ▐ ▄.
-    ///     - `SpinnerType::Flip`: Spinner with flip characters _ _ _ - \ ' ´ - _ _ _.
-    ///     - `SpinnerType::Custom(frames)`: Custom spinner with user-defined frames.
-    fn to_frames(&self) -> Vec<&'static str> {
+    /// Converts the spinner type to a vector of frames, gives back the following variants:
+    ///  - `SpinnerType::Standard`: Standard spinner with characters / - \ |.
+    ///  - `SpinnerType::Dots`: Spinner with dots . .. ... .....
+    ///  - `SpinnerType::Box`: Spinner with box characters ▌ ▀ ▐ ▄.
+    ///  - `SpinnerType::Flip`: Spinner with flip characters _ _ _ - \ ' ´ - _ _ _.
+    ///  - `SpinnerType::Custom(frames)`: Custom spinner with user-defined frames.
+    pub fn to_frames(&self) -> Vec<&'static str> {
         match self {
             SpinnerType::Standard => vec!["/", "-", "\\", "|"],
             SpinnerType::Dots => vec![".", "..", "...", "....", "...", ".."],

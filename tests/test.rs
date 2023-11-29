@@ -28,8 +28,8 @@ fn test_select() {
 #[test]
 fn test_spinner() {
     // Give the fn the needed time and SpinnerType
-    spinner(4.2, SpinnerType::Standard);
+    spinner(1.0, SpinnerType::Standard);
 
     // Custom Spinner
-    spinner(4.2, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]))
+    spinner(1.0, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]))
 }
