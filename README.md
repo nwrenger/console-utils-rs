@@ -92,7 +92,7 @@ Displays a string gradually, revealing one character at a time with a specified 
 use console_utils::reveal;
 
 // Display "Hello World!" with a time interval of 0.1 seconds between each character and a new line after it's finished.
-reveal(0.1, "Hello World!", true);
+reveal("Hello World!", 0.1, true);
 ```
 
 For more detailed documentation, please refer to the [generated Rust Docs](https://docs.rs/console-utils/latest/console_utils/).

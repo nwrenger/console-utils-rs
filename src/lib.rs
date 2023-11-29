@@ -259,8 +259,8 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
 ///
 /// # Arguments
 ///
-/// * `time_between` - The time interval (in seconds) between each revealed character.
 /// * `str` - The string to reveal gradually.
+/// * `time_between` - The time interval (in seconds) between each revealed character.
 /// * `new_line` - If true, adds a newline character after the revelation.
 ///
 /// # Example
@@ -269,9 +269,9 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
 /// use console_utils::reveal;
 ///
 /// // Display "Hello World!" with a time interval of 0.1 seconds between each character and a new line after it's finished.
-/// reveal(0.1, "Hello World!", true);
+/// reveal("Hello World!", 0.1, true);
 /// ```
-pub fn reveal(time_between: f64, str: &str, new_line: bool) {
+pub fn reveal(str: &str, time_between: f64, new_line: bool) {
     let stdout = Term::buffered_stdout();
 
     for i in 0..str.len() {

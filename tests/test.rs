@@ -37,5 +37,5 @@ fn test_spinner() {
 #[test]
 fn test_reveal() {
     // Give the fn the str and time, prints it delayed with a new line.
-    reveal(0.1, "Hello World!", true);
+    reveal("Hello World!", 0.1, true);
 }
