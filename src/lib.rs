@@ -271,7 +271,7 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
 /// ```
 pub fn reveal(str: &str, time_between: f64) {
     for i in 0..str.len() {
-        print!("{:?}", str.chars().nth(i).unwrap());
+        print!("{}", str.chars().nth(i).unwrap_or(' '));
         io::stdout().flush().unwrap();
         thread::sleep(Duration::from_secs_f64(time_between));
     }
