@@ -1,11 +1,10 @@
-use std::{
-    io::{self, Write},
-    thread,
-    time::Duration,
-};
+use std::{thread, time::Duration};
 
 // Import the functions to be tested from the crate root
-use console_utils::{clear_line, input, reveal, select, spinner, SpinnerType};
+use console_utils::{
+    clear_line, flush, input, move_cursor_down, move_cursor_up, reveal, select, spinner,
+    SpinnerType,
+};
 
 #[test]
 #[ignore]
@@ -23,7 +22,12 @@ fn test_input() {
 #[ignore]
 fn test_select() {
     // Run the function with simulated input and captured output
-    let result = select("Select an option:", &["Option 1"], false, false);
+    let result = select(
+        "Select an option:",
+        &["Option 1", "Option 2", "Option 3"],
+        false,
+        false,
+    );
 
     // select the first option using spacebar and click enter
 
@@ -50,11 +54,34 @@ fn test_reveal() {
 fn test_clear() {
     // Print Something.
     print!("Hello World");
+
     // Force update the terminal
-    io::stdout().flush().unwrap();
+    flush();
 
     // wait
     thread::sleep(Duration::from_secs_f64(1.0));
+
+    // Clear the current line.
+    clear_line();
+}
+
+#[test]
+fn test_move() {
+    // Print Something.
+    println!("Hello World");
+    println!("Hello World");
+
+    // move
+    move_cursor_up(2);
+
+    // wait
+    thread::sleep(Duration::from_secs_f64(0.5));
+
+    // move
+    move_cursor_down(1);
+
+    // wait
+    thread::sleep(Duration::from_secs_f64(0.5));
 
     // Clear the current line.
     clear_line();

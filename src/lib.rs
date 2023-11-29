@@ -42,7 +42,7 @@ where
 {
     loop {
         print!("{before}");
-        io::stdout().flush().unwrap();
+        flush();
 
         let mut cli = String::new();
         io::stdin().read_line(&mut cli).unwrap();
@@ -109,47 +109,51 @@ pub fn select(
 ) -> Option<Vec<bool>> {
     loop {
         let mut matrix: Vec<bool> = vec![];
+        let mut i = 0;
         let stdout = Term::buffered_stdout();
 
-        println!("{}\n", before,);
+        // print everything
+        println!("{}", before,);
 
         for i in options {
             println!("[ ] {}", i);
             matrix.push(false);
         }
 
-        stdout.move_cursor_up(options.len()).unwrap();
-        stdout.flush().unwrap();
-        let mut i = 0;
+        // move the cursor to the first item
+        move_cursor_up(options.len());
+        move_cursor_right(options[i].len() + 4);
 
+        // input reaction loop
         loop {
             if let Ok(character) = stdout.read_key() {
                 match character {
                     Key::ArrowUp | Key::Char('w') => {
                         if i > 0 {
-                            stdout.move_cursor_up(1).unwrap();
+                            move_cursor_up(1);
+                            move_cursor_left(options[i].len() + 4);
                             i -= 1;
+                            move_cursor_right(options[i].len() + 4);
                         }
                     }
                     Key::ArrowDown | Key::Char('s') => {
                         if i < options.len() - 1 {
-                            stdout.move_cursor_down(1).unwrap();
+                            move_cursor_down(1);
+                            move_cursor_left(options[i].len() + 4);
                             i += 1;
+                            move_cursor_right(options[i].len() + 4);
                         }
                     }
                     Key::Char(' ') => {
-                        stdout.clear_line().unwrap();
+                        clear_line();
                         if matrix[i] {
-                            stdout.write_line(&format!("[ ] {}", options[i])).unwrap();
+                            print!("[ ] {}", options[i]);
                             matrix[i] = false;
                         } else {
-                            stdout
-                                .write_line(&format!("[{}] {}", style("*").cyan(), options[i]))
-                                .unwrap();
+                            print!("[{}] {}", style("*").cyan(), options[i]);
                             matrix[i] = true;
                         }
-                        stdout.move_cursor_up(1).unwrap();
-                        stdout.flush().unwrap();
+                        flush();
                     }
                     Key::Enter => {
                         break;
@@ -157,27 +161,26 @@ pub fn select(
                     _ => {}
                 }
             }
-            stdout.flush().unwrap();
         }
 
+        // process input
         if matrix.iter().filter(|&&selected| selected).count() > 1 && !multiple {
-            reset(stdout, "\nPlease Select only one!\n", options.len());
+            reset("\nPlease Select only one!\n", options.len());
         } else if allow_empty && matrix.iter().all(|&x| !x) {
-            reset(stdout, "", options.len());
+            reset("", options.len());
             return None;
         } else if !matrix.iter().all(|&x| !x) {
-            reset(stdout, "", options.len());
+            reset("", options.len());
             return Some(matrix);
         } else {
-            reset(stdout, "\nPlease Select any option!\n", options.len());
+            reset("\nPlease Select any option!\n", options.len());
         }
     }
 }
 
 // Internal function for resetting the console.
-fn reset(stdout: Term, mes: &str, len: usize) {
-    stdout.move_cursor_down(len).unwrap();
-    stdout.flush().unwrap();
+fn reset(mes: &str, len: usize) {
+    move_cursor_down(len);
     println!("{mes}");
 }
 
@@ -237,7 +240,7 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
     while time > 0.0 {
         clear_line();
         print!("{}", frames[i]);
-        io::stdout().flush().unwrap();
+        flush();
         thread::sleep(Duration::from_secs_f64(0.075));
         time -= 0.075;
         if i < frames.len() - 1 {
@@ -248,6 +251,20 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
     }
 
     clear_line();
+}
+
+/// Flushes the output buffer, ensuring that all content is written to the console.
+///
+/// # Example
+///
+/// ```rust
+/// use console_utils::flush;
+///
+/// // Flush the output buffer to ensure content is displayed immediately
+/// flush();
+/// ```
+pub fn flush() {
+    io::stdout().flush().unwrap();
 }
 
 /// Clears the current line in the console.
@@ -265,7 +282,111 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
 /// ```
 pub fn clear_line() {
     print!("\r\x1b[2K");
-    io::stdout().flush().unwrap();
+    flush();
+}
+
+/// Moves the cursor down by the specified number of lines.
+///
+/// # Arguments
+///
+/// * `n` - The number of lines to move the cursor down.
+///
+/// # Example
+///
+/// ```rust
+/// use console_utils::move_cursor_down;
+///
+/// // Move the cursor down by 2 lines
+/// move_cursor_down(2);
+/// ```
+pub fn move_cursor_down(n: usize) {
+    if n > 0 {
+        print!("\x1b[{}B", n);
+        flush();
+    }
+}
+
+/// Moves the cursor up by the specified number of lines.
+///
+/// # Arguments
+///
+/// * `n` - The number of lines to move the cursor up.
+///
+/// # Example
+///
+/// ```rust
+/// use console_utils::move_cursor_up;
+///
+/// // Move the cursor up by 3 lines
+/// move_cursor_up(3);
+/// ```
+pub fn move_cursor_up(n: usize) {
+    if n > 0 {
+        print!("\x1b[{}A", n);
+        flush();
+    }
+}
+
+/// Moves the cursor to the left by the specified number of characters.
+///
+/// # Arguments
+///
+/// * `n` - The number of characters to move the cursor to the left.
+///
+/// # Example
+///
+/// ```rust
+/// use console_utils::move_cursor_left;
+///
+/// // Move the cursor left by 4 characters
+/// move_cursor_left(4);
+/// ```
+pub fn move_cursor_left(n: usize) {
+    if n > 0 {
+        print!("\x1b[{}D", n);
+        flush();
+    }
+}
+
+/// Moves the cursor to the right by the specified number of characters.
+///
+/// # Arguments
+///
+/// * `n` - The number of characters to move the cursor to the right.
+///
+/// # Example
+///
+/// ```rust
+/// use console_utils::move_cursor_right;
+///
+/// // Move the cursor right by 5 characters
+/// move_cursor_right(5);
+/// ```
+pub fn move_cursor_right(n: usize) {
+    if n > 0 {
+        print!("\x1b[{}C", n);
+        flush();
+    }
+}
+
+/// Moves the cursor to the specified position on the console.
+///
+/// # Arguments
+///
+/// * `x` - The horizontal position (column) to move the cursor to.
+/// * `y` - The vertical position (row) to move the cursor to.
+///
+/// # Example
+///
+/// ```rust
+/// use console_utils::move_cursor_to;
+///
+/// // Move the cursor to column 3, row 5
+/// move_cursor_to(3, 5);
+/// ```
+pub fn move_cursor_to(x: usize, y: usize) {
+    print!("\x1B[{};{}H", y + 1, x + 1);
+    flush();
 }
 
 /// Reveals a string gradually, printing one character at a time with a specified time interval.
@@ -288,7 +409,7 @@ pub fn clear_line() {
 pub fn reveal(str: &str, time_between: f64) {
     for i in 0..str.len() {
         print!("{}", str.chars().nth(i).unwrap_or(' '));
-        io::stdout().flush().unwrap();
+        flush();
         thread::sleep(Duration::from_secs_f64(time_between));
     }
 }

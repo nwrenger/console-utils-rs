@@ -97,21 +97,16 @@ fn main() {
 }
 ```
 
-## Clear Line Function
+## Output Control and Cursor Movement
 
-Clears the current line in the console.
+The library also provides functions for output control and precise cursor movement:
 
-This function uses ANSI escape codes to clear the entire line and move the cursor to the
-beginning of the line.
-
-### Usage
-
-```rust
-use console_utils::clear_line;
-fn main() {
-    // Clear the current line
-    clear_line();
-}
-```
+- `clear_line`
+- `flush`
+- `move_cursor_down`
+- `move_cursor_up`
+- `move_cursor_left`
+- `move_cursor_right`
+- `move_cursor_to`
 
 For more detailed documentation, please refer to the [generated Rust Docs](https://docs.rs/console-utils/latest/console_utils/).
