@@ -185,17 +185,34 @@ pub enum SpinnerType {
     Custom(Vec<&'static str>),
 }
 
+impl SpinnerType {
+    /// Converts the spinner type to a vector of frames.
+    ///
+    /// # Returns
+    ///
+    /// Returns a vector of strings representing frames for the spinner, gives back the following variants:
+    ///     - `SpinnerType::Standard`: Standard spinner with characters / - \ |.
+    ///     - `SpinnerType::Dots`: Spinner with dots . .. ... .....
+    ///     - `SpinnerType::Box`: Spinner with box characters ▌ ▀ ▐ ▄.
+    ///     - `SpinnerType::Flip`: Spinner with flip characters _ _ _ - \ ' ´ - _ _ _.
+    ///     - `SpinnerType::Custom(frames)`: Custom spinner with user-defined frames.
+    fn to_frames(&self) -> Vec<&'static str> {
+        match self {
+            SpinnerType::Standard => vec!["/", "-", "\\", "|"],
+            SpinnerType::Dots => vec![".", "..", "...", "....", "...", ".."],
+            SpinnerType::Box => vec!["▌", "▀", "▐", "▄"],
+            SpinnerType::Flip => vec!["_", "_", "_", "-", "`", "`", "'", "´", "-", "_", "_", "_"],
+            SpinnerType::Custom(frames) => frames.to_owned(),
+        }
+    }
+}
+
 /// Displays a console-based spinner animation.
 ///
 /// # Parameters
 ///
 /// - `time`: A floating-point number representing the duration of the spinner animation in seconds.
-/// - `spinner_type`: The type of spinner to display, which can be one of the following:
-///     - `SpinnerType::Standard`: Standard spinner with characters / - \ |.
-///     - `SpinnerType::Dots`: Spinner with dots . .. ... .....
-///     - `SpinnerType::Box`: Spinner with box characters ▌ ▀ ▐ ▄.
-///     - `SpinnerType::Flip`: Spinner with flip characters _ _ _ - \ ' ´ - _ _ _.
-///     - `SpinnerType::Custom(frame)`: Custom spinner with a user-defined frame.
+/// - `spinner_type`: The type of spinner to display.
 ///
 /// # Example
 ///
@@ -210,24 +227,18 @@ pub enum SpinnerType {
 /// ```
 pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
     let stdout = Term::buffered_stdout();
+    let frames = spinner_type.to_frames();
     let mut i = 0;
 
     while time > 0.0 {
         stdout.clear_line().unwrap();
-        let frame = match spinner_type {
-            SpinnerType::Standard => vec!["/", "-", "\\", "|"],
-            SpinnerType::Dots => vec![".", "..", "...", "....", "...", ".."],
-            SpinnerType::Box => vec!["▌", "▀", "▐", "▄"],
-            SpinnerType::Flip => vec!["_", "_", "_", "-", "`", "`", "'", "´", "-", "_", "_", "_"],
-            SpinnerType::Custom(ref custom_frame) => custom_frame.to_vec(),
-        };
-        stdout.write_line(frame[i]).unwrap();
+        stdout.write_line(frames[i]).unwrap();
         stdout.move_cursor_up(1).unwrap();
-        stdout.move_cursor_right(frame[i].len()).unwrap();
+        stdout.move_cursor_right(frames[i].len()).unwrap();
         stdout.flush().unwrap();
         thread::sleep(Duration::from_secs_f64(0.075));
         time -= 0.075;
-        if i < frame.len() - 1 {
+        if i < frames.len() - 1 {
             i += 1
         } else {
             i = 0

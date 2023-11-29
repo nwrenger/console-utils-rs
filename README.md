@@ -72,8 +72,8 @@ spinner(3.0, SpinnerType::Standard);
 // Display a dots spinner for 2 seconds
 spinner(2.0, SpinnerType::Dots);
 
-// Display a custom spinner for 1 second (using a custom frame)
-spinner(1.0, SpinnerType::Custom("@ "));
+// Display a custom spinner for 1 second (using custom frames)
+spinner(1.0, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]));
 
 // Display a box spinner for 1.5 seconds
 spinner(1.5, SpinnerType::Box);

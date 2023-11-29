@@ -26,7 +26,6 @@ fn test_select() {
 }
 
 #[test]
-#[ignore]
 fn test_spinner() {
     // Give the fn the needed time and SpinnerType
     spinner(4.2, SpinnerType::Standard);
