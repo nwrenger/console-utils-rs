@@ -5,7 +5,7 @@ use console_utils::{input, reveal, select, spinner, SpinnerType};
 #[ignore]
 fn test_input() {
     // Run the function
-    let result = input::<u8>("Enter something: ", false, false);
+    let result = input::<u8>("Enter something: ", false);
 
     // Input anything
 
@@ -36,6 +36,6 @@ fn test_spinner() {
 
 #[test]
 fn test_reveal() {
-    // Give the fn the str and time, prints it delayed with a new line.
-    reveal("Hello World!", 0.1, true);
+    // Give the fn the str and time.
+    reveal("Hello World!\n", 0.1);
 }

@@ -16,7 +16,7 @@ use console_utils::input;
 
 fn main() {
     // Prompt the user for input
-    let user_input = input::<String>("Enter something: ", false, false);
+    let user_input = input::<String>("Enter something: ", false);
 
     // Process the user input
     match user_input {
@@ -92,7 +92,7 @@ Displays a string gradually, revealing one character at a time with a specified 
 use console_utils::reveal;
 
 // Display "Hello World!" with a time interval of 0.1 seconds between each character and a new line after it's finished.
-reveal("Hello World!", 0.1, true);
+reveal("Hello World!", 0.1);
 ```
 
 For more detailed documentation, please refer to the [generated Rust Docs](https://docs.rs/console-utils/latest/console_utils/).

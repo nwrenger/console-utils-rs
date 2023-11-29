@@ -15,9 +15,8 @@ use std::{
 ///
 /// # Arguments
 ///
-/// * `before` - The text to display before prompting for input.
+/// * `before` - The text to display before prompting for input. Add here `\n` for a new line.
 /// * `allow_empty` - If true, allows the input to be empty.
-/// * `new_line` - If true, adds a newline character after the prompt.
 ///
 /// # Returns
 ///
@@ -29,20 +28,20 @@ use std::{
 /// ```no_run
 /// use console_utils::input;
 ///     
-/// let user_input = input::<String>("Enter something: ", false, false);
+/// let user_input = input::<String>("Enter something: ", false);
 ///
 /// match user_input {
 ///     Some(value) => println!("You entered: {}", value),
 ///     None => panic!("The Input cannot be None, allow_empty is false."),
 /// }
 /// ```
-pub fn input<T>(before: &str, allow_empty: bool, new_line: bool) -> Option<T>
+pub fn input<T>(before: &str, allow_empty: bool) -> Option<T>
 where
     T: std::str::FromStr,
     T::Err: std::fmt::Debug,
 {
     loop {
-        print!("{before} {}", if new_line { '\n' } else { '\0' });
+        print!("{before}");
         io::stdout().flush().unwrap();
 
         let mut cli = String::new();
@@ -259,9 +258,8 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
 ///
 /// # Arguments
 ///
-/// * `str` - The string to reveal gradually.
+/// * `str` - The string to reveal gradually. Add here `\n` for a new line.
 /// * `time_between` - The time interval (in seconds) between each revealed character.
-/// * `new_line` - If true, adds a newline character after the revelation.
 ///
 /// # Example
 ///
@@ -269,16 +267,12 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
 /// use console_utils::reveal;
 ///
 /// // Display "Hello World!" with a time interval of 0.1 seconds between each character and a new line after it's finished.
-/// reveal("Hello World!", 0.1, true);
+/// reveal("Hello World!", 0.1);
 /// ```
-pub fn reveal(str: &str, time_between: f64, new_line: bool) {
+pub fn reveal(str: &str, time_between: f64) {
     for i in 0..str.len() {
-        print!("{}", str.chars().nth(i).unwrap());
+        print!("{:?}", str.chars().nth(i).unwrap());
         io::stdout().flush().unwrap();
         thread::sleep(Duration::from_secs_f64(time_between));
-    }
-
-    if new_line {
-        println!();
     }
 }
