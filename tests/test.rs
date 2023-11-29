@@ -1,5 +1,11 @@
+use std::{
+    io::{self, Write},
+    thread,
+    time::Duration,
+};
+
 // Import the functions to be tested from the crate root
-use console_utils::{input, reveal, select, spinner, SpinnerType};
+use console_utils::{clear_line, input, reveal, select, spinner, SpinnerType};
 
 #[test]
 #[ignore]
@@ -37,5 +43,19 @@ fn test_spinner() {
 #[test]
 fn test_reveal() {
     // Give the fn the str and time.
-    reveal("Hello World!\n", 0.1);
+    reveal("Hello World!", 0.1);
+}
+
+#[test]
+fn test_clear() {
+    // Print Something.
+    print!("Hello World");
+    // Force update the terminal
+    io::stdout().flush().unwrap();
+
+    // wait
+    thread::sleep(Duration::from_secs_f64(1.0));
+
+    // Clear the current line.
+    clear_line();
 }

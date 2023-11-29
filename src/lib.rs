@@ -211,6 +211,9 @@ impl SpinnerType {
 
 /// Displays a console-based spinner animation.
 ///
+/// A spinner is a visual indicator of a long-running process. It consists of a set of frames
+/// that are displayed sequentially to create the appearance of motion.
+///
 /// # Parameters
 ///
 /// - `time`: A floating-point number representing the duration of the spinner animation in seconds.
@@ -228,16 +231,13 @@ impl SpinnerType {
 /// spinner(2.0, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]));
 /// ```
 pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
-    let stdout = Term::buffered_stdout();
     let frames = spinner_type.to_frames();
     let mut i = 0;
 
     while time > 0.0 {
-        stdout.clear_line().unwrap();
-        stdout.write_line(frames[i]).unwrap();
-        stdout.move_cursor_up(1).unwrap();
-        stdout.move_cursor_right(frames[i].len()).unwrap();
-        stdout.flush().unwrap();
+        clear_line();
+        print!("{}", frames[i]);
+        io::stdout().flush().unwrap();
         thread::sleep(Duration::from_secs_f64(0.075));
         time -= 0.075;
         if i < frames.len() - 1 {
@@ -247,14 +247,30 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
         }
     }
 
-    stdout.clear_line().unwrap();
-    stdout.flush().unwrap();
+    clear_line();
 }
 
-/// Reveal Function
+/// Clears the current line in the console.
 ///
-/// Displays a string gradually, revealing one character at a time with a specified time interval
-/// between each character.
+/// This function uses ANSI escape codes to clear the entire line and move the cursor to the
+/// beginning of the line.
+///
+/// # Example
+///
+/// ```rust
+/// use console_utils::clear_line;
+///
+/// // Clear the current line
+/// clear_line();
+/// ```
+pub fn clear_line() {
+    print!("\r\x1b[2K");
+    io::stdout().flush().unwrap();
+}
+
+/// Reveals a string gradually, printing one character at a time with a specified time interval.
+///
+/// This function is useful for creating a typing effect or slowly displaying information to the user.
 ///
 /// # Arguments
 ///

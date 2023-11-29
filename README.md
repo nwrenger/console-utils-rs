@@ -65,21 +65,22 @@ The spinner function creates a console-based spinner animation, offering a visua
 
 ```rust
 use console_utils::{spinner, SpinnerType};
-
-// Display a standard spinner for 3 seconds
-spinner(3.0, SpinnerType::Standard);
-
-// Display a dots spinner for 2 seconds
-spinner(2.0, SpinnerType::Dots);
-
-// Display a custom spinner for 1 second (using custom frames)
-spinner(1.0, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]));
-
-// Display a box spinner for 1.5 seconds
-spinner(1.5, SpinnerType::Box);
-
-// Display a flip spinner for 2 seconds
-spinner(2.0, SpinnerType::Flip);
+fn main() {
+    // Display a standard spinner for 3 seconds
+    spinner(3.0, SpinnerType::Standard);
+    
+    // Display a dots spinner for 2 seconds
+    spinner(2.0, SpinnerType::Dots);
+    
+    // Display a custom spinner for 1 second (using custom frames)
+    spinner(1.0, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]));
+    
+    // Display a box spinner for 1.5 seconds
+    spinner(1.5, SpinnerType::Box);
+    
+    // Display a flip spinner for 2 seconds
+    spinner(2.0, SpinnerType::Flip);
+}
 ```
 
 ## Reveal Function
@@ -90,9 +91,27 @@ Displays a string gradually, revealing one character at a time with a specified 
 
 ```rust
 use console_utils::reveal;
+fn main() {
+    // Display "Hello World!" with a time interval of 0.1 seconds between each character and a new line after it's finished.
+    reveal("Hello World!", 0.1);
+}
+```
 
-// Display "Hello World!" with a time interval of 0.1 seconds between each character and a new line after it's finished.
-reveal("Hello World!", 0.1);
+## Clear Line Function
+
+Clears the current line in the console.
+
+This function uses ANSI escape codes to clear the entire line and move the cursor to the
+beginning of the line.
+
+### Usage
+
+```rust
+use console_utils::clear_line;
+fn main() {
+    // Clear the current line
+    clear_line();
+}
 ```
 
 For more detailed documentation, please refer to the [generated Rust Docs](https://docs.rs/console-utils/latest/console_utils/).
