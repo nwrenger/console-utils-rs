@@ -113,14 +113,14 @@ pub mod windows {
         if std::io::stdin().read(&mut buffer).is_ok() {
             enable_line_buffering().unwrap();
             match buffer[0] {
-                13 => Some(Key::Enter),
-                9 => Some(Key::Tab),
-                8 => Some(Key::Backspace),
-                27 => Some(Key::Escape),
-                38 => Some(Key::ArrowUp),
-                40 => Some(Key::ArrowDown),
-                39 => Some(Key::ArrowRight),
-                37 => Some(Key::ArrowLeft),
+                [13, 0, 0] => Some(Key::Enter),
+                [9, 0, 0] => Some(Key::Tab),
+                [8, 0, 0] => Some(Key::Backspace),
+                [27, 0, 0] => Some(Key::Escape),
+                [0, 0, 72] => Some(Key::ArrowUp),
+                [0, 0, 80] => Some(Key::ArrowDown),
+                [0, 0, 77] => Some(Key::ArrowRight),
+                [0, 0, 75] => Some(Key::ArrowLeft),
                 c => Some(Key::Char(c as char)),
             }
         } else {
