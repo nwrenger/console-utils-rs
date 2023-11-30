@@ -2,9 +2,9 @@ use std::{thread, time::Duration};
 
 // Import the functions to be tested from the crate root
 use console_utils::{
-    clear_line, flush, input, move_cursor_down, move_cursor_up,
+    control::{clear_line, flush, move_cursor_down, move_cursor_up},
+    input::{input, reveal, select, spinner, SpinnerType},
     read::{read_key, Key},
-    reveal, select, spinner, SpinnerType,
 };
 
 #[test]

@@ -1,17 +1,7 @@
-//! Read Implementation Cross Platform
+//! A Cross Platform Read Implementation
 //!
 //! This module provides cross-platform functionality for reading keyboard input,
 //! allowing your console application to handle various key events uniformly.
-//! # Examples
-//!
-//! ```no_run
-//! use console_utils::read::{Key, read_key};
-//!
-//! // Cross-platform key reading example
-//! let key = read_key().unwrap();
-//!
-//! println!("Pressed key: {:?}", key);
-//! ```
 
 /// # Key Enum
 ///
@@ -44,6 +34,16 @@ pub enum Key {
 ///
 /// The `read_key` function reads a single key event from the console input
 /// and returns a `Key` enum.
+/// # Examples
+///
+/// ```no_run
+/// use console_utils::read::{Key, read_key};
+///
+/// // Cross-platform key reading example
+/// let key = read_key();
+///
+/// println!("Pressed key: {:?}", key);
+/// ```
 pub fn read_key() -> Option<Key> {
     #[cfg(windows)]
     {
