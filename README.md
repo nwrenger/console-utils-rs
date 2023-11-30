@@ -17,7 +17,7 @@ To use Console Utils in your Rust project, you can add the following dependency 
 
 ```toml
 [dependencies]
-console-utils = "1.5.4"
+console-utils = "1.5.5"
 ```
 
 After adding the dependency, you can import the modules you need in your Rust code. For example:
@@ -30,7 +30,7 @@ use console_utils::control::{flush, clear_line};
 ## Example
 
 ```rust
-use console_utils::input::{input, select, spinner, SpinnerType};
+use console_utils::{input::{input, spinner, SpinnerType, select, reveal}, control::clear_line};
 
 fn main() {
     // Read user input as a string

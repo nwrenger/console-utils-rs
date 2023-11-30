@@ -59,7 +59,7 @@ pub fn read_key() -> Option<Key> {
 /// # Windows Module
 ///
 /// The `windows` module contains Windows-specific implementation details for reading
-/// keyboard input. It utilizes the `windows` crate to interact with Windows Console API.
+/// keyboard input. It utilizes the `windows-sys` crate to interact with Windows Console API.
 #[cfg(windows)]
 pub mod windows {
     use std::io::{self, Read};
