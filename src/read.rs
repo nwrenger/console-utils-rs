@@ -44,148 +44,141 @@ pub enum Key {
 ///
 /// The `read_key` function reads a single key event from the console input
 /// and returns a `Key` enum.
-pub fn read_key() -> Result<Key, std::io::Error> {
-    #[cfg(target_os = "windows")]
+pub fn read_key() -> Option<Key> {
+    #[cfg(windows)]
     {
         windows::read_key()
     }
 
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(unix)]
     {
-        unix::read_key().ok_or_else(|| {
-            std::io::Error::new(std::io::ErrorKind::Other, "Failed to read a single key")
-        })
+        unix::read_key()
     }
 }
 
 /// # Windows Module
 ///
 /// The `windows` module contains Windows-specific implementation details for reading
-/// keyboard input. It utilizes the `winapi` crate to interact with Windows Console API.
-#[cfg(target_os = "windows")]
+/// keyboard input. It utilizes the `windows` crate to interact with Windows Console API.
+#[cfg(windows)]
 pub mod windows {
-    use std::io;
-    use winapi::{
-        shared::minwindef::{DWORD, FALSE, TRUE},
-        um::consoleapi::{GetNumberOfConsoleInputEvents, ReadConsoleInputW, KEY_EVENT},
-        um::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
-        um::winnt::HANDLE,
-        um::winuser::{GetConsoleMode, GetStdHandle, SetConsoleMode, STD_INPUT_HANDLE},
+    use std::io::{self, Read};
+    use windows_sys::Win32::Foundation::E_HANDLE;
+    use windows_sys::Win32::System::Console::{
+        GetConsoleMode, GetStdHandle, SetConsoleMode, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT,
     };
 
     use super::Key;
 
-    // Windows specific constants
-    const ENABLE_VIRTUAL_TERMINAL_INPUT: DWORD = 0x0200;
+    // Internal function for disabling line buffering.
+    fn disable_line_buffering() -> io::Result<()> {
+        let handle = unsafe { GetStdHandle(E_HANDLE.try_into().unwrap()) };
 
-    fn key_from_key_code(key_code: DWORD) -> Key {
-        match key_code {
-            13 => Key::Enter,
-            9 => Key::Tab,
-            8 => Key::Backspace,
-            27 => Key::Escape,
-            38 => Key::ArrowUp,
-            40 => Key::ArrowDown,
-            39 => Key::ArrowRight,
-            37 => Key::ArrowLeft,
-            _ => Key::Char(key_code as u8 as char),
-        }
-    }
+        let mut mode: u32 = 0;
+        unsafe {
+            if GetConsoleMode(handle, &mut mode) == 0 {
+                return Err(io::Error::last_os_error());
+            }
 
-    fn setup_console_mode(handle: HANDLE) -> io::Result<(DWORD, DWORD)> {
-        let mut mode: DWORD = 0;
-        if unsafe { GetConsoleMode(handle, &mut mode) } == FALSE {
-            return Err(io::Error::last_os_error());
-        }
-
-        let new_mode = mode | ENABLE_VIRTUAL_TERMINAL_INPUT;
-        if unsafe { SetConsoleMode(handle, new_mode) } == FALSE {
-            return Err(io::Error::last_os_error());
-        }
-
-        Ok((mode, new_mode))
-    }
-
-    fn restore_console_mode(handle: HANDLE, original_mode: DWORD) -> io::Result<()> {
-        if unsafe { SetConsoleMode(handle, original_mode) } == FALSE {
-            Err(io::Error::last_os_error())
-        } else {
-            Ok(())
-        }
-    }
-
-    pub(crate) fn read_key() -> io::Result<Key> {
-        // Get the console handle for standard input
-        let handle = unsafe { GetStdHandle(STD_INPUT_HANDLE) };
-        if handle == HANDLE::NULL {
-            return Err(io::Error::last_os_error());
-        }
-
-        // Save the original console mode and set the new mode with virtual terminal input enabled
-        let (original_mode, new_mode) = setup_console_mode(handle)?;
-
-        // Read console input events
-        let mut events: Vec<KEY_EVENT> = Vec::with_capacity(1);
-        let mut num_events: DWORD = 0;
-
-        if unsafe { ReadConsoleInputW(handle, events.as_mut_ptr() as *mut _, 1, &mut num_events) }
-            == FALSE
-        {
-            let error = io::Error::last_os_error();
-            // Restore the original console mode before returning the error
-            restore_console_mode(handle, original_mode)?;
-            return Err(error);
-        }
-
-        // Restore the original console mode
-        restore_console_mode(handle, original_mode)?;
-
-        if num_events > 0 {
-            let event = &events[0];
-            if event.bKeyDown == TRUE {
-                return Ok(key_from_key_code(event.wVirtualKeyCode));
+            if SetConsoleMode(handle, mode & !(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT)) == 0 {
+                return Err(io::Error::last_os_error());
             }
         }
 
-        Err(io::Error::new(
-            io::ErrorKind::Other,
-            "Failed to read a single key",
-        ))
+        Ok(())
+    }
+
+    // Internal function for enabling line buffering.
+    fn enable_line_buffering() -> io::Result<()> {
+        let handle = unsafe { GetStdHandle(E_HANDLE.try_into().unwrap()) };
+
+        let mut mode: u32 = 0;
+        unsafe {
+            if GetConsoleMode(handle, &mut mode) == 0 {
+                return Err(io::Error::last_os_error());
+            }
+
+            if SetConsoleMode(handle, mode | (ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT)) == 0 {
+                return Err(io::Error::last_os_error());
+            }
+        }
+
+        Ok(())
+    }
+
+    // Internal function for reading a key from the console.
+    pub(crate) fn read_key() -> Option<Key> {
+        let mut buffer = [0; 3];
+        disable_line_buffering().unwrap();
+        if std::io::stdin().read(&mut buffer).is_ok() {
+            enable_line_buffering().unwrap();
+            match buffer[0] {
+                13 => Some(Key::Enter),
+                9 => Some(Key::Tab),
+                8 => Some(Key::Backspace),
+                27 => Some(Key::Escape),
+                38 => Some(Key::ArrowUp),
+                40 => Some(Key::ArrowDown),
+                39 => Some(Key::ArrowRight),
+                37 => Some(Key::ArrowLeft),
+                c => Some(Key::Char(c as char)),
+            }
+        } else {
+            None
+        }
     }
 }
 
 /// # Unix Module
 ///
 /// The `unix` module contains Unix-specific implementation details for reading
-/// keyboard input. It uses the `termios` crate to manipulate terminal attributes.
-#[cfg(not(target_os = "windows"))]
+/// keyboard input. It uses the `libc` crate to manipulate terminal attributes.
+#[cfg(unix)]
 pub mod unix {
-    use std::io::Read;
-
-    use termios::{tcsetattr, Termios, TCSANOW};
+    use libc::{tcgetattr, tcsetattr, ECHO, ICANON, STDIN_FILENO, TCSANOW};
+    use std::io::{self, Read};
+    use std::mem;
 
     use super::Key;
 
     // Internal function for disabling line buffering.
-    fn disable_line_buffering() {
-        let mut termios = Termios::from_fd(0).expect("Failed to get terminal attributes");
-        termios.c_lflag &= !(termios::ICANON | termios::ECHO);
-        tcsetattr(0, TCSANOW, &termios).expect("Failed to set terminal attributes");
+    fn disable_line_buffering() -> io::Result<()> {
+        let mut termios = unsafe { mem::zeroed() };
+        if unsafe { tcgetattr(STDIN_FILENO, &mut termios) } != 0 {
+            return Err(io::Error::last_os_error());
+        }
+
+        termios.c_lflag &= !(ICANON | ECHO);
+
+        if unsafe { tcsetattr(STDIN_FILENO, TCSANOW, &termios) } != 0 {
+            return Err(io::Error::last_os_error());
+        }
+
+        Ok(())
     }
 
     // Internal function for enabling line buffering.
-    fn enable_line_buffering() {
-        let mut termios = Termios::from_fd(0).expect("Failed to get terminal attributes");
-        termios.c_lflag |= termios::ICANON | termios::ECHO;
-        tcsetattr(0, TCSANOW, &termios).expect("Failed to set terminal attributes");
+    fn enable_line_buffering() -> io::Result<()> {
+        let mut termios = unsafe { mem::zeroed() };
+        if unsafe { tcgetattr(STDIN_FILENO, &mut termios) } != 0 {
+            return Err(io::Error::last_os_error());
+        }
+
+        termios.c_lflag |= ICANON | ECHO;
+
+        if unsafe { tcsetattr(STDIN_FILENO, TCSANOW, &termios) } != 0 {
+            return Err(io::Error::last_os_error());
+        }
+
+        Ok(())
     }
 
     // Internal function for reading a key from the console.
     pub(crate) fn read_key() -> Option<Key> {
         let mut buffer = [0; 3];
-        disable_line_buffering();
+        disable_line_buffering().unwrap();
         if std::io::stdin().read(&mut buffer).is_ok() {
-            enable_line_buffering();
+            enable_line_buffering().unwrap();
             match buffer[0] {
                 27 => {
                     // Arrow key sequence

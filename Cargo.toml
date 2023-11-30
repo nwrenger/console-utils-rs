@@ -12,6 +12,13 @@ license = "MIT"
 
 [lib]
 
-[dependencies]
-termios = { version = "0.3.3", default-features = false }
-winapi = { version = "0.3.9", features = ["winuser"] }
+[target.'cfg(unix)'.dependencies.libc]
+version = "0.2.150"
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.52.0"
+features = [
+    "Win32_Foundation",
+    "Win32_System_Console",
+    "Win32_System_SystemServices"
+]
