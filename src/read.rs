@@ -112,7 +112,7 @@ pub mod windows {
         disable_line_buffering().unwrap();
         if std::io::stdin().read(&mut buffer).is_ok() {
             enable_line_buffering().unwrap();
-            match buffer[0] {
+            match buffer {
                 [13, 0, 0] => Some(Key::Enter),
                 [9, 0, 0] => Some(Key::Tab),
                 [8, 0, 0] => Some(Key::Backspace),
@@ -121,7 +121,7 @@ pub mod windows {
                 [0, 0, 80] => Some(Key::ArrowDown),
                 [0, 0, 77] => Some(Key::ArrowRight),
                 [0, 0, 75] => Some(Key::ArrowLeft),
-                c => Some(Key::Char(c as char)),
+                [c, _, _] => Some(Key::Char(c as char)),
             }
         } else {
             None
