@@ -1,11 +1,15 @@
 //! A simple library for console-based user input, option selection and more.
 
-use console::{style, Key, Term};
+pub mod read;
+
 use std::{
     io::{self, Write},
     thread,
     time::Duration,
 };
+
+// Key Import
+use read::{read_key, Key};
 
 /// Reads user input from the console.
 ///
@@ -110,10 +114,9 @@ pub fn select(
     loop {
         let mut matrix: Vec<bool> = vec![];
         let mut i = 0;
-        let stdout = Term::buffered_stdout();
 
         // print everything
-        println!("{}", before,);
+        println!("{}", before);
 
         for i in options {
             println!("[ ] {}", i);
@@ -124,9 +127,8 @@ pub fn select(
         move_cursor_up(options.len());
         move_cursor_right(options[i].len() + 4);
 
-        // input reaction loop
         loop {
-            if let Ok(character) = stdout.read_key() {
+            if let Ok(character) = read_key() {
                 match character {
                     Key::ArrowUp | Key::Char('w') => {
                         if i > 0 {
@@ -150,7 +152,7 @@ pub fn select(
                             print!("[ ] {}", options[i]);
                             matrix[i] = false;
                         } else {
-                            print!("[{}] {}", style("*").cyan(), options[i]);
+                            print!("[\x1b[36m*\x1b[0m] {}", options[i]);
                             matrix[i] = true;
                         }
                         flush();
@@ -403,7 +405,7 @@ pub fn move_cursor_to(x: usize, y: usize) {
 /// ```rust
 /// use console_utils::reveal;
 ///
-/// // Display "Hello World!" with a time interval of 0.1 seconds between each character and a new line after it's finished.
+/// // Display "Hello World!" with a time interval of 0.1 seconds between each character.
 /// reveal("Hello World!", 0.1);
 /// ```
 pub fn reveal(str: &str, time_between: f64) {

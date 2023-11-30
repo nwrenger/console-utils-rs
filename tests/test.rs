@@ -2,12 +2,13 @@ use std::{thread, time::Duration};
 
 // Import the functions to be tested from the crate root
 use console_utils::{
-    clear_line, flush, input, move_cursor_down, move_cursor_up, reveal, select, spinner,
-    SpinnerType,
+    clear_line, flush, input, move_cursor_down, move_cursor_up,
+    read::{read_key, Key},
+    reveal, select, spinner, SpinnerType,
 };
 
 #[test]
-#[ignore]
+#[ignore = "user inputs"]
 fn test_input() {
     // Run the function
     let result = input::<u8>("Enter something: ", false);
@@ -19,7 +20,7 @@ fn test_input() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "user inputs"]
 fn test_select() {
     // Run the function with simulated input and captured output
     let result = select(
@@ -33,6 +34,17 @@ fn test_select() {
 
     // Check the result
     assert!(result.is_some());
+}
+
+#[test]
+#[ignore = "user inputs"]
+fn test_read_key() {
+    // This test assumes a key press event for the 'a' key
+    // You may need to adapt this based on the actual behavior of the platform implementation
+
+    // Read the key
+    let key = read_key().unwrap();
+    assert_eq!(key, Key::Char('a'));
 }
 
 #[test]

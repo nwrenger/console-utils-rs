@@ -1,6 +1,6 @@
 [package]
 name = "console-utils"
-version = "1.4.0"
+version = "1.5.0"
 edition = "2021"
 authors = ["Nils Wrenger <nils@wrenger.net>"]
 description = "Cli input utilities."
@@ -13,4 +13,5 @@ license = "MIT"
 [lib]
 
 [dependencies]
-console = "0.15.7"
+termios = { version = "0.3.3", default-features = false }
+winapi = { version = "0.3.9", features = ["winuser"] }

@@ -32,7 +32,6 @@ The `select` function allows the user to interactively select options from a lis
 ### Usage
 
 ```rust
-
 use console_utils::select;
 
 fn main() {
@@ -54,6 +53,23 @@ fn main() {
         }
         None => panic!("The Options cannot be None, allow_empty is false."),
     }
+}
+```
+
+## Read Function
+
+The read module provides cross-platform functionality for reading keyboard input. It includes the Key enum representing different keyboard keys and platform-specific implementations for Windows and Unix.
+
+### Usage
+
+```rust
+use console_utils::read::{Key, read_key};
+
+fn main() {
+    // Cross-platform key reading example
+    let key = read_key().unwrap();
+
+    println!("Pressed key: {:?}", key);
 }
 ```
 
