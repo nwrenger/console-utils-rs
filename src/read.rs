@@ -67,6 +67,7 @@ pub mod windows {
         GetConsoleMode, GetStdHandle, SetConsoleMode, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT,
         STD_INPUT_HANDLE,
     };
+    use windows_sys::Win32::UI::Input::KeyboardAndMouse;
 
     use super::Key;
 
@@ -108,20 +109,20 @@ pub mod windows {
 
     // Internal function for reading a key from the console.
     pub(crate) fn read_key() -> Option<Key> {
-        let mut buffer = [0; 3];
+        let mut buffer = [0; 2];
         disable_line_buffering().unwrap();
         if std::io::stdin().read(&mut buffer).is_ok() {
             enable_line_buffering().unwrap();
-            match buffer {
-                [13, 0, 0] => Some(Key::Enter),
-                [9, 0, 0] => Some(Key::Tab),
-                [8, 0, 0] => Some(Key::Backspace),
-                [27, 0, 0] => Some(Key::Escape),
-                [0, 0, 72] => Some(Key::ArrowUp),
-                [0, 0, 80] => Some(Key::ArrowDown),
-                [0, 0, 77] => Some(Key::ArrowRight),
-                [0, 0, 75] => Some(Key::ArrowLeft),
-                [c, _, _] => Some(Key::Char(c as char)),
+            match u16::from_le_bytes(buffer) {
+                KeyboardAndMouse::VK_RETURN => Some(Key::Enter),
+                KeyboardAndMouse::VK_TAB => Some(Key::Tab),
+                KeyboardAndMouse::VK_BACK => Some(Key::Backspace),
+                KeyboardAndMouse::VK_ESCAPE => Some(Key::Escape),
+                KeyboardAndMouse::VK_UP => Some(Key::ArrowUp),
+                KeyboardAndMouse::VK_DOWN => Some(Key::ArrowDown),
+                KeyboardAndMouse::VK_RIGHT => Some(Key::ArrowRight),
+                KeyboardAndMouse::VK_LEFT => Some(Key::ArrowLeft),
+                c => Some(Key::Char(char::from_u32(c.into()).unwrap())),
             }
         } else {
             None
