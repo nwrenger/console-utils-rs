@@ -63,16 +63,16 @@ pub fn read_key() -> Option<Key> {
 #[cfg(windows)]
 pub mod windows {
     use std::io::{self, Read};
-    use windows_sys::Win32::Foundation::E_HANDLE;
     use windows_sys::Win32::System::Console::{
         GetConsoleMode, GetStdHandle, SetConsoleMode, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT,
+        STD_INPUT_HANDLE,
     };
 
     use super::Key;
 
     // Internal function for disabling line buffering.
     fn disable_line_buffering() -> io::Result<()> {
-        let handle = unsafe { GetStdHandle(E_HANDLE.try_into().unwrap()) };
+        let handle = unsafe { GetStdHandle(STD_INPUT_HANDLE) };
 
         let mut mode: u32 = 0;
         unsafe {
@@ -90,7 +90,7 @@ pub mod windows {
 
     // Internal function for enabling line buffering.
     fn enable_line_buffering() -> io::Result<()> {
-        let handle = unsafe { GetStdHandle(E_HANDLE.try_into().unwrap()) };
+        let handle = unsafe { GetStdHandle(STD_INPUT_HANDLE) };
 
         let mut mode: u32 = 0;
         unsafe {
