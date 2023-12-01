@@ -40,7 +40,7 @@ pub enum Key {
 /// # Examples
 ///
 /// ```no_run
-/// use console_utils::read::{Key, read_key};
+/// use console_utils::read::{read_key};
 ///
 /// // Cross-platform key reading example
 /// let key = read_key();

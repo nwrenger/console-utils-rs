@@ -44,6 +44,11 @@ fn main() {
     // Display a standard spinner for 3 seconds
     spinner(3.0, SpinnerType::Standard);
 
+    // Cross-platform key reading
+    let key = read_key();
+
+    println!("Pressed key: {:?}", key);
+
     let options = vec![
         "Option 1",
         "Option 2",
