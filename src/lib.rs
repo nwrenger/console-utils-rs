@@ -71,7 +71,7 @@
 //! ```no_run
 //! use console_utils::read::{read_key};
 //!
-//! // Cross-platform key reading example
+//! // Cross-platform key reading
 //! let key = read_key();
 //!
 //! println!("Pressed key: {:?}", key);
