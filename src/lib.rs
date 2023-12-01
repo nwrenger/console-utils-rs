@@ -86,7 +86,6 @@
 //! // Display "Hello World!" with a time interval of 0.1 seconds between each character
 //! reveal("Hello World!", 0.1);
 //! ```
-
 pub mod control;
 pub mod input;
 pub mod read;

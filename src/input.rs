@@ -54,10 +54,10 @@ where
         } else if !cli.trim().is_empty() {
             match cli.trim().parse() {
                 Ok(value) => return Some(value),
-                Err(_) => println!("\nWrong Input Type\n"),
+                Err(_) => println!("\nInvalid Input Type\n"),
             }
         } else {
-            println!("\nWrong Input\n");
+            println!("\nInvalid Input\n");
         }
     }
 }
