@@ -68,7 +68,7 @@ pub mod windows {
     use std::io::{self, Read};
     use windows_sys::Win32::System::Console::{
         GetConsoleMode, GetStdHandle, SetConsoleMode, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT,
-        ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_INPUT_HANDLE,
+        ENABLE_VIRTUAL_TERMINAL_INPUT, ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_INPUT_HANDLE,
     };
     use windows_sys::Win32::UI::Input::KeyboardAndMouse;
 
@@ -88,6 +88,7 @@ pub mod windows {
                 handle,
                 mode & !(ENABLE_LINE_INPUT
                     | ENABLE_ECHO_INPUT
+                    | ENABLE_VIRTUAL_TERMINAL_INPUT
                     | ENABLE_VIRTUAL_TERMINAL_PROCESSING),
             ) == 0
             {
@@ -110,7 +111,10 @@ pub mod windows {
 
             if SetConsoleMode(
                 handle,
-                mode | (ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING),
+                mode | (ENABLE_LINE_INPUT
+                    | ENABLE_ECHO_INPUT
+                    | ENABLE_VIRTUAL_TERMINAL_INPUT
+                    | ENABLE_VIRTUAL_TERMINAL_PROCESSING),
             ) == 0
             {
                 return Err(io::Error::last_os_error());
@@ -126,16 +130,17 @@ pub mod windows {
         disable_line_buffering()?;
         if std::io::stdin().read(&mut buffer).is_ok() {
             enable_line_buffering()?;
-            match u16::from_le_bytes(buffer) {
-                KeyboardAndMouse::VK_RETURN => Ok(Key::Enter),
-                KeyboardAndMouse::VK_TAB => Ok(Key::Tab),
-                KeyboardAndMouse::VK_BACK => Ok(Key::Backspace),
-                KeyboardAndMouse::VK_ESCAPE => Ok(Key::Escape),
+            println!("{:?}", buffer);
+            match u16::from_le_bytes([buffer[0], buffer[1]]) {
                 KeyboardAndMouse::VK_UP => Ok(Key::ArrowUp),
                 KeyboardAndMouse::VK_DOWN => Ok(Key::ArrowDown),
                 KeyboardAndMouse::VK_RIGHT => Ok(Key::ArrowRight),
                 KeyboardAndMouse::VK_LEFT => Ok(Key::ArrowLeft),
-                c => Ok(Key::Char(char::from_u32(c.into()).unwrap())),
+                KeyboardAndMouse::VK_RETURN => Ok(Key::Enter),
+                KeyboardAndMouse::VK_TAB => Ok(Key::Tab),
+                KeyboardAndMouse::VK_BACK => Ok(Key::Backspace),
+                KeyboardAndMouse::VK_ESCAPE => Ok(Key::Escape),
+                c => Ok(Key::Char(char::from_u32(c.into()).unwrap_or_default())),
             }
         } else {
             Err(io::Error::last_os_error())
