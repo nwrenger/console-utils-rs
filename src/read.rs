@@ -65,85 +65,50 @@ pub fn read_key() -> io::Result<Key> {
 /// keyboard input. It utilizes the `windows-sys` crate to interact with Windows Console API.
 #[cfg(windows)]
 pub mod windows {
-    use std::io::{self, Read};
+    use super::Key;
+    use std::io;
+    use std::mem;
     use windows_sys::Win32::System::Console::{
-        GetConsoleMode, GetStdHandle, SetConsoleMode, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT,
-        ENABLE_VIRTUAL_TERMINAL_INPUT, ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_INPUT_HANDLE,
+        GetStdHandle, ReadConsoleInputW, INPUT_RECORD, KEY_EVENT, KEY_EVENT_RECORD,
+        STD_INPUT_HANDLE,
     };
     use windows_sys::Win32::UI::Input::KeyboardAndMouse;
 
-    use super::Key;
-
-    // Internal function for disabling line buffering.
-    fn disable_line_buffering() -> io::Result<()> {
-        let handle = unsafe { GetStdHandle(STD_INPUT_HANDLE) };
-
-        let mut mode: u32 = 0;
-        unsafe {
-            if GetConsoleMode(handle, &mut mode) == 0 {
-                return Err(io::Error::last_os_error());
-            }
-
-            if SetConsoleMode(
-                handle,
-                mode & !(ENABLE_LINE_INPUT
-                    | ENABLE_ECHO_INPUT
-                    | ENABLE_VIRTUAL_TERMINAL_INPUT
-                    | ENABLE_VIRTUAL_TERMINAL_PROCESSING),
-            ) == 0
-            {
-                return Err(io::Error::last_os_error());
-            }
-        }
-
-        Ok(())
-    }
-
-    // Internal function for enabling line buffering.
-    fn enable_line_buffering() -> io::Result<()> {
-        let handle = unsafe { GetStdHandle(STD_INPUT_HANDLE) };
-
-        let mut mode: u32 = 0;
-        unsafe {
-            if GetConsoleMode(handle, &mut mode) == 0 {
-                return Err(io::Error::last_os_error());
-            }
-
-            if SetConsoleMode(
-                handle,
-                mode | (ENABLE_LINE_INPUT
-                    | ENABLE_ECHO_INPUT
-                    | ENABLE_VIRTUAL_TERMINAL_INPUT
-                    | ENABLE_VIRTUAL_TERMINAL_PROCESSING),
-            ) == 0
-            {
-                return Err(io::Error::last_os_error());
-            }
-        }
-
-        Ok(())
-    }
-
-    // Internal function for reading a key from the console.
     pub(crate) fn read_key() -> io::Result<Key> {
-        let mut buffer = [0; 2];
-        disable_line_buffering()?;
-        if std::io::stdin().read(&mut buffer).is_ok() {
-            enable_line_buffering()?;
-            println!("{:?}", buffer);
-            match u16::from_le_bytes([buffer[0], buffer[1]]) {
-                KeyboardAndMouse::VK_UP => Ok(Key::ArrowUp),
-                KeyboardAndMouse::VK_DOWN => Ok(Key::ArrowDown),
-                KeyboardAndMouse::VK_RIGHT => Ok(Key::ArrowRight),
-                KeyboardAndMouse::VK_LEFT => Ok(Key::ArrowLeft),
-                KeyboardAndMouse::VK_RETURN => Ok(Key::Enter),
-                KeyboardAndMouse::VK_TAB => Ok(Key::Tab),
-                KeyboardAndMouse::VK_BACK => Ok(Key::Backspace),
-                KeyboardAndMouse::VK_ESCAPE => Ok(Key::Escape),
-                c => Ok(Key::Char(char::from_u32(c.into()).unwrap_or_default())),
+        let handle = unsafe { GetStdHandle(STD_INPUT_HANDLE) };
+        let mut buffer: INPUT_RECORD = unsafe { mem::zeroed() };
+
+        let mut events_read: u32 = unsafe { mem::zeroed() };
+
+        loop {
+            let success = unsafe { ReadConsoleInputW(handle, &mut buffer, 1, &mut events_read) };
+            if success == 0 {
+                return Err(io::Error::last_os_error());
             }
-        } else {
-            Err(io::Error::last_os_error())
+            if events_read == 0 {
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    "ReadConsoleInput returned no events, instead of waiting for an event",
+                ));
+            }
+
+            if events_read == 1 && buffer.EventType == KEY_EVENT as u16 {
+                let key_event: KEY_EVENT_RECORD = unsafe { mem::transmute(buffer.Event) };
+
+                if key_event.bKeyDown != 0 {
+                    return match key_event.wVirtualKeyCode {
+                        KeyboardAndMouse::VK_UP => Ok(Key::ArrowUp),
+                        KeyboardAndMouse::VK_DOWN => Ok(Key::ArrowDown),
+                        KeyboardAndMouse::VK_RIGHT => Ok(Key::ArrowRight),
+                        KeyboardAndMouse::VK_LEFT => Ok(Key::ArrowLeft),
+                        KeyboardAndMouse::VK_RETURN => Ok(Key::Enter),
+                        KeyboardAndMouse::VK_TAB => Ok(Key::Tab),
+                        KeyboardAndMouse::VK_BACK => Ok(Key::Backspace),
+                        KeyboardAndMouse::VK_ESCAPE => Ok(Key::Escape),
+                        c => Ok(Key::Char(char::from_u32(c as u32).unwrap_or_default())),
+                    };
+                }
+            }
         }
     }
 }

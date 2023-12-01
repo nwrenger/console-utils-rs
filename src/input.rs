@@ -128,7 +128,7 @@ pub fn select(
         loop {
             if let Ok(character) = read_key() {
                 match character {
-                    Key::ArrowUp | Key::Char('w') => {
+                    Key::ArrowUp | Key::Char('w') | Key::Char('W') => {
                         if i > 0 {
                             move_cursor_up(1);
                             move_cursor_left(options[i].len() + 4);
@@ -136,7 +136,7 @@ pub fn select(
                             move_cursor_right(options[i].len() + 4);
                         }
                     }
-                    Key::ArrowDown | Key::Char('s') => {
+                    Key::ArrowDown | Key::Char('s') | Key::Char('S') => {
                         if i < options.len() - 1 {
                             move_cursor_down(1);
                             move_cursor_left(options[i].len() + 4);
