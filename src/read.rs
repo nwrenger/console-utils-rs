@@ -3,6 +3,8 @@
 //! This module provides cross-platform functionality for reading keyboard input,
 //! allowing your console application to handle various key events uniformly.
 
+use std::io;
+
 /// # Key Enum
 ///
 /// The `Key` enum represents different keyboard keys that can be captured by the
@@ -28,6 +30,7 @@ pub enum Key {
     Backspace,
     Escape,
     Char(char),
+    Unknown,
 }
 
 /// # Read Key Function
@@ -44,7 +47,7 @@ pub enum Key {
 ///
 /// println!("Pressed key: {:?}", key);
 /// ```
-pub fn read_key() -> Option<Key> {
+pub fn read_key() -> io::Result<Key> {
     #[cfg(windows)]
     {
         windows::read_key()
@@ -65,7 +68,7 @@ pub mod windows {
     use std::io::{self, Read};
     use windows_sys::Win32::System::Console::{
         GetConsoleMode, GetStdHandle, SetConsoleMode, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT,
-        STD_INPUT_HANDLE,
+        ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_INPUT_HANDLE,
     };
     use windows_sys::Win32::UI::Input::KeyboardAndMouse;
 
@@ -81,7 +84,13 @@ pub mod windows {
                 return Err(io::Error::last_os_error());
             }
 
-            if SetConsoleMode(handle, mode & !(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT)) == 0 {
+            if SetConsoleMode(
+                handle,
+                mode & !(ENABLE_LINE_INPUT
+                    | ENABLE_ECHO_INPUT
+                    | ENABLE_VIRTUAL_TERMINAL_PROCESSING),
+            ) == 0
+            {
                 return Err(io::Error::last_os_error());
             }
         }
@@ -99,7 +108,11 @@ pub mod windows {
                 return Err(io::Error::last_os_error());
             }
 
-            if SetConsoleMode(handle, mode | (ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT)) == 0 {
+            if SetConsoleMode(
+                handle,
+                mode | (ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING),
+            ) == 0
+            {
                 return Err(io::Error::last_os_error());
             }
         }
@@ -108,24 +121,24 @@ pub mod windows {
     }
 
     // Internal function for reading a key from the console.
-    pub(crate) fn read_key() -> Option<Key> {
+    pub(crate) fn read_key() -> io::Result<Key> {
         let mut buffer = [0; 2];
-        disable_line_buffering().unwrap();
+        disable_line_buffering()?;
         if std::io::stdin().read(&mut buffer).is_ok() {
-            enable_line_buffering().unwrap();
+            enable_line_buffering()?;
             match u16::from_le_bytes(buffer) {
-                KeyboardAndMouse::VK_RETURN => Some(Key::Enter),
-                KeyboardAndMouse::VK_TAB => Some(Key::Tab),
-                KeyboardAndMouse::VK_BACK => Some(Key::Backspace),
-                KeyboardAndMouse::VK_ESCAPE => Some(Key::Escape),
-                KeyboardAndMouse::VK_UP => Some(Key::ArrowUp),
-                KeyboardAndMouse::VK_DOWN => Some(Key::ArrowDown),
-                KeyboardAndMouse::VK_RIGHT => Some(Key::ArrowRight),
-                KeyboardAndMouse::VK_LEFT => Some(Key::ArrowLeft),
-                c => Some(Key::Char(char::from_u32(c.into()).unwrap())),
+                KeyboardAndMouse::VK_RETURN => Ok(Key::Enter),
+                KeyboardAndMouse::VK_TAB => Ok(Key::Tab),
+                KeyboardAndMouse::VK_BACK => Ok(Key::Backspace),
+                KeyboardAndMouse::VK_ESCAPE => Ok(Key::Escape),
+                KeyboardAndMouse::VK_UP => Ok(Key::ArrowUp),
+                KeyboardAndMouse::VK_DOWN => Ok(Key::ArrowDown),
+                KeyboardAndMouse::VK_RIGHT => Ok(Key::ArrowRight),
+                KeyboardAndMouse::VK_LEFT => Ok(Key::ArrowLeft),
+                c => Ok(Key::Char(char::from_u32(c.into()).unwrap())),
             }
         } else {
-            None
+            Err(io::Error::last_os_error())
         }
     }
 }
@@ -175,33 +188,33 @@ pub mod unix {
     }
 
     // Internal function for reading a key from the console.
-    pub(crate) fn read_key() -> Option<Key> {
+    pub(crate) fn read_key() -> io::Result<Key> {
         let mut buffer = [0; 3];
-        disable_line_buffering().unwrap();
+        disable_line_buffering()?;
         if std::io::stdin().read(&mut buffer).is_ok() {
-            enable_line_buffering().unwrap();
+            enable_line_buffering()?;
             match buffer[0] {
                 27 => {
                     // Arrow key sequence
                     if buffer[1] == 91 {
                         match buffer[2] {
-                            65 => Some(Key::ArrowUp),
-                            66 => Some(Key::ArrowDown),
-                            67 => Some(Key::ArrowRight),
-                            68 => Some(Key::ArrowLeft),
-                            _ => None,
+                            65 => Ok(Key::ArrowUp),
+                            66 => Ok(Key::ArrowDown),
+                            67 => Ok(Key::ArrowRight),
+                            68 => Ok(Key::ArrowLeft),
+                            _ => Ok(Key::Unknown),
                         }
                     } else {
-                        None
+                        Ok(Key::Unknown)
                     }
                 }
-                b'\n' => Some(Key::Enter),
-                b'\t' => Some(Key::Tab),
-                127 => Some(Key::Backspace),
-                c => Some(Key::Char(c as char)),
+                b'\n' => Ok(Key::Enter),
+                b'\t' => Ok(Key::Tab),
+                127 => Ok(Key::Backspace),
+                c => Ok(Key::Char(c as char)),
             }
         } else {
-            None
+            Err(io::Error::last_os_error())
         }
     }
 }

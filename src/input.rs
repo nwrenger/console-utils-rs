@@ -126,7 +126,7 @@ pub fn select(
         move_cursor_right(options[i].len() + 4);
 
         loop {
-            if let Some(character) = read_key() {
+            if let Ok(character) = read_key() {
                 match character {
                     Key::ArrowUp | Key::Char('w') => {
                         if i > 0 {
