@@ -76,7 +76,7 @@
 //!
 //! println!("Pressed key: {:?}", key);
 //! ```
-//! 
+//!
 //! ## Displaying a Spinner
 //!
 //! ```rust

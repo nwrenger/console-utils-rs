@@ -1,6 +1,6 @@
 [package]
 name = "console-utils"
-version = "1.5.6"
+version = "1.5.7"
 edition = "2021"
 authors = ["Nils Wrenger <nils@wrenger.net>"]
 description = "Simple CLI Input and Control Utilities"
@@ -20,7 +20,5 @@ version = "0.52.0"
 features = [
     "Win32_Foundation",
     "Win32_System_Console",
-    "Win32_UI",
-    "Win32_UI_Input",
     "Win32_UI_Input_KeyboardAndMouse",
 ]
