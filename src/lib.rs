@@ -8,7 +8,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! console-utils = "1.5.6"
+//! console-utils = "1.5.8"
 //! ```
 //!
 //! After adding the dependency, you can import the modules you need in your Rust code. For example:
