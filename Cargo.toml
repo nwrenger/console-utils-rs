@@ -1,6 +1,6 @@
 [package]
 name = "console-utils"
-version = "1.5.8"
+version = "1.5.9"
 edition = "2021"
 authors = ["Nils Wrenger <nils@wrenger.net>"]
 description = "Simple CLI Input and Control Utilities"
@@ -17,6 +17,7 @@ version = "0.2.150"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 version = "0.52.0"
+default-features = false
 features = [
     "Win32_Foundation",
     "Win32_System_Console",
