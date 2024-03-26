@@ -1,7 +1,8 @@
 # Console Utils
 
-[![Crate](https://img.shields.io/crates/v/console-utils.svg)](https://crates.io/crates/console-utils)
-[![API](https://docs.rs/console-utils/badge.svg)](https://docs.rs/console-utils)
+[![crates.io](https://img.shields.io/crates/v/console-utils.svg)](https://crates.io/crates/console-utils)
+[![crates.io](https://img.shields.io/crates/d/console-utils.svg)](https://crates.io/crates/console-utils)
+[![docs.rs](https://docs.rs/console-utils/badge.svg)](https://docs.rs/console-utils)
 
 _A Rust library for console-based user input, option selection, control, and more._
 
