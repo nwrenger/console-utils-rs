@@ -2,8 +2,8 @@ use std::{thread, time::Duration};
 
 // Import the functions to be tested from the crate root
 use console_utils::{
-    control::{clear_line, flush, move_cursor_down, move_cursor_up},
-    input::{input, reveal, select, spinner, SpinnerType},
+    control::{clear_line, flush, move_cursor_down, move_cursor_up, Visibility},
+    input::{input, multiselect, reveal, select, spinner, Empty, SpinnerType},
     read::{read_key, Key},
 };
 
@@ -11,29 +11,32 @@ use console_utils::{
 #[ignore = "user inputs"]
 fn test_input() {
     // Run the function
-    let result = input::<u8>("Enter something: ", false);
+    let result = input::<Empty<u8>>("Enter something");
 
     // Input anything
 
     // Check the result
-    assert!(result.is_some());
+    println!("{:?}", result);
 }
 
 #[test]
 #[ignore = "user inputs"]
 fn test_select() {
     // Run the function with simulated input and captured output
-    let result = select(
-        "Select an option:",
-        &["Option 1", "Option 2", "Option 3"],
-        false,
-        false,
-    );
+    let result = select("Select an option", &["Option 1", "Option 2", "Option 3"]);
+
+    // select the first option using enter
+
+    // Check the result
+    println!("{:?}", result);
+
+    // Run the function with simulated input and captured output
+    let result = multiselect("Select an option", &["Option 1", "Option 2", "Option 3"]);
 
     // select the first option using spacebar and click enter
 
     // Check the result
-    assert!(result.is_some());
+    println!("{:?}", result);
 }
 
 #[test]
@@ -75,6 +78,20 @@ fn test_clear() {
 
     // Clear the current line.
     clear_line();
+}
+
+#[test]
+fn test_curser_visibility() {
+    // Print Something.
+    println!("Hello World");
+
+    // hide
+    Visibility::hide_cursor();
+    // wait
+    thread::sleep(Duration::from_secs_f64(1.0));
+
+    // on drop the cursor will always be shown again, otherwise use this
+    // Visibility::show_cursor();
 }
 
 #[test]

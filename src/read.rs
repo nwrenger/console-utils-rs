@@ -37,16 +37,6 @@ pub enum Key {
 ///
 /// The `read_key` function reads a single key event from the console input
 /// and returns a `Key` enum.
-/// # Examples
-///
-/// ```no_run
-/// use console_utils::read::{read_key};
-///
-/// // Cross-platform key reading
-/// let key = read_key();
-///
-/// println!("Pressed key: {:?}", key);
-/// ```
 pub fn read_key() -> io::Result<Key> {
     #[cfg(windows)]
     {
