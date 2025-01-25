@@ -9,7 +9,7 @@ use console_utils::{
 
 #[test]
 #[ignore = "user inputs"]
-fn test_input() {
+fn user_input() {
     // Run the function
     let result = input::<Empty<u8>>("Enter something");
 
@@ -21,9 +21,12 @@ fn test_input() {
 
 #[test]
 #[ignore = "user inputs"]
-fn test_select() {
+fn user_select() {
     // Run the function with simulated input and captured output
-    let result = select("Select an option", &["Option 1", "Option 2", "Option 3"]);
+    let result = select(
+        "Select the one option (select using Enter)",
+        &["Option 1", "Option 2", "Option 3"],
+    );
 
     // select the first option using enter
 
@@ -31,7 +34,10 @@ fn test_select() {
     println!("{:?}", result);
 
     // Run the function with simulated input and captured output
-    let result = multiselect("Select an option", &["Option 1", "Option 2", "Option 3"]);
+    let result = multiselect(
+        "Select an option (select using SpaceBar, then Enter)",
+        &["Option 1", "Option 2", "Option 3"],
+    );
 
     // select the first option using spacebar and click enter
 
@@ -41,7 +47,7 @@ fn test_select() {
 
 #[test]
 #[ignore = "user inputs"]
-fn test_read_key() {
+fn user_read_key() {
     // This test assumes a key press event for the 'a' key
     // You may need to adapt this based on the actual behavior of the platform implementation
 
@@ -51,7 +57,7 @@ fn test_read_key() {
 }
 
 #[test]
-fn test_spinner() {
+fn spinner_visible() {
     // Give the fn the needed time and SpinnerType
     spinner(1.0, SpinnerType::Standard);
 
@@ -60,13 +66,13 @@ fn test_spinner() {
 }
 
 #[test]
-fn test_reveal() {
+fn reveal_visible() {
     // Give the fn the str and time.
     reveal("Hello World!", 0.1);
 }
 
 #[test]
-fn test_clear() {
+fn clear() {
     // Print Something.
     print!("Hello World");
 
@@ -81,21 +87,23 @@ fn test_clear() {
 }
 
 #[test]
-fn test_curser_visibility() {
+fn cursor_visibility() {
     // Print Something.
     println!("Hello World");
 
+    let vis = Visibility::new();
+
     // hide
-    Visibility::hide_cursor();
+    vis.hide_cursor();
     // wait
     thread::sleep(Duration::from_secs_f64(1.0));
 
     // on drop the cursor will always be shown again, otherwise use this
-    // Visibility::show_cursor();
+    // vis.show_cursor();
 }
 
 #[test]
-fn test_move() {
+fn r#move() {
     // Print Something.
     println!("Hello World");
     println!("Hello World");

@@ -1,11 +1,12 @@
 [package]
 name = "console-utils"
-version = "1.6.0"
+version = "1.6.1"
 edition = "2021"
 authors = ["Nils Wrenger <nils@wrenger.net>"]
 description = "Simple CLI Input and Control Utilities"
 keywords = ["console", "terminal", "cli"]
 categories = ["command-line-utilities", "cli"]
+rust-version = "1.63.0"
 repository = "https://github.com/nwrenger/console-utils-rs"
 readme = "README.md"
 license = "MIT"
@@ -13,10 +14,10 @@ license = "MIT"
 [lib]
 
 [target.'cfg(unix)'.dependencies.libc]
-version = "0.2.150"
+version = "0.2.169"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.52.0"
+version = "0.59.0"
 default-features = false
 features = [
     "Win32_Foundation",

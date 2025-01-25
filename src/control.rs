@@ -27,17 +27,22 @@ pub fn clear_lines(i: usize) {
 }
 
 /// Struct for ensuring and changing cursor visibility.
+#[derive(Default)]
 pub struct Visibility;
 
 impl Visibility {
+    pub fn new() -> Self {
+        Self
+    }
+
     /// Hide the cursor via an ASCII escape sequence.
-    pub fn hide_cursor() {
+    pub fn hide_cursor(&self) {
         print!("\x1B[?25l");
         flush();
     }
 
     /// Show the cursor via an ASCII escape sequence.
-    pub fn show_cursor() {
+    pub fn show_cursor(&self) {
         print!("\x1B[?25h");
         flush();
     }
@@ -45,7 +50,7 @@ impl Visibility {
 
 impl Drop for Visibility {
     fn drop(&mut self) {
-        Visibility::show_cursor();
+        Visibility::show_cursor(self);
     }
 }
 

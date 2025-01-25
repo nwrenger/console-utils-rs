@@ -59,7 +59,7 @@ where
 
         match cli.parse() {
             Ok(value) => return value,
-            Err(_) => println!("\nInvalid Input Type\n"),
+            Err(_) => println!("\n\x1b[31mX\x1b[0m Invalid Input Type\n"),
         }
     }
 }
@@ -87,7 +87,8 @@ pub fn select<'a>(before: &'a str, options: &'a [&'a str]) -> usize {
     populate(options, None, 0);
 
     // hide cursor
-    Visibility::hide_cursor();
+    let vis = Visibility::new();
+    vis.hide_cursor();
 
     loop {
         if let Ok(character) = read_key() {
@@ -113,7 +114,6 @@ pub fn select<'a>(before: &'a str, options: &'a [&'a str]) -> usize {
     }
 
     // reset cursor
-    Visibility::show_cursor();
     move_cursor_down(options.len());
 
     i
@@ -145,7 +145,8 @@ pub fn multiselect(before: &str, options: &[&str]) -> Vec<bool> {
     populate(options, Some(&matrix), 0);
 
     // hide cursor
-    Visibility::hide_cursor();
+    let vis = Visibility::new();
+    vis.hide_cursor();
 
     loop {
         if let Ok(character) = read_key() {
@@ -179,7 +180,6 @@ pub fn multiselect(before: &str, options: &[&str]) -> Vec<bool> {
     }
 
     // reset cursor
-    Visibility::show_cursor();
     move_cursor_down(options.len());
 
     matrix

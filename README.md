@@ -16,7 +16,7 @@ To use Console Utils in your Rust project, you can add the following dependency 
 
 ```toml
 [dependencies]
-console-utils = "1.6.0"
+console-utils = "1.6.1"
 ```
 
 After adding the dependency, you can import the modules you need in your Rust code. For example:
