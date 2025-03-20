@@ -5,8 +5,9 @@
 use std::{io, str::FromStr, thread, time::Duration};
 
 use crate::{
-    control::*,
+    control::{clear_line, flush, move_cursor_down, move_cursor_up, Visibility},
     read::{read_key, Key},
+    styled::{Color, StyledText},
 };
 
 /// A Wrapper for empty inputs returning a None
@@ -51,7 +52,9 @@ where
     T::Err: std::fmt::Debug,
 {
     loop {
-        print!("\x1b[31m?\x1b[0m {before} \x1b[90m›\x1b[0m ");
+        let quest = StyledText::new("?").fg(Color::Red);
+        let caret = StyledText::new("›").fg(Color::BrightBlack);
+        print!("{quest} {before} {caret} ");
         flush();
 
         let mut cli = String::new();
@@ -59,7 +62,10 @@ where
 
         match cli.parse() {
             Ok(value) => return value,
-            Err(_) => println!("\n\x1b[31mX\x1b[0m Invalid Input Type\n"),
+            Err(_) => {
+                let x = StyledText::new("X").fg(Color::Red);
+                println!("\n{x} Invalid Input Type\n")
+            }
         }
     }
 }
@@ -82,7 +88,9 @@ pub fn select<'a>(before: &'a str, options: &'a [&'a str]) -> usize {
     let mut i = 0;
 
     // print everything
-    println!("\x1b[31m?\x1b[0m {before} \x1b[90m›\x1b[0m ");
+    let quest = StyledText::new("?").fg(Color::Red);
+    let caret = StyledText::new("›").fg(Color::BrightBlack);
+    println!("{quest} {before} {caret} ");
 
     populate(options, None, 0);
 
@@ -140,7 +148,9 @@ pub fn multiselect(before: &str, options: &[&str]) -> Vec<bool> {
     let mut i = 0;
 
     // print everything
-    println!("\x1b[31m?\x1b[0m {before} \x1b[90m›\x1b[0m ");
+    let quest = StyledText::new("?").fg(Color::Red);
+    let caret = StyledText::new("›").fg(Color::BrightBlack);
+    println!("{quest} {before} {caret} ");
 
     populate(options, Some(&matrix), 0);
 
@@ -185,22 +195,21 @@ pub fn multiselect(before: &str, options: &[&str]) -> Vec<bool> {
     matrix
 }
 
-/// Populate function for multiselect
+/// Populate function for select/multiselect
 fn populate(options: &[&str], matrix: Option<&[bool]>, cursor: usize) {
     for (i, option) in options.iter().enumerate() {
         clear_line();
         if i == cursor {
-            println!(
-                "\x1b[36m ›\x1b[0m\x1b[3{}m {}\x1b[0m",
-                if matrix.is_some() && matrix.unwrap()[i] {
-                    "2"
-                } else {
-                    "6"
-                },
-                option
-            );
+            let caret = StyledText::new("›").fg(Color::Green);
+            let option = if matrix.is_some() && matrix.unwrap()[i] {
+                StyledText::new(option).fg(Color::Green)
+            } else {
+                StyledText::new(option).fg(Color::Cyan)
+            };
+            println!(" {caret} {option}");
         } else if matrix.is_some() && matrix.unwrap()[i] {
-            println!("\x1b[32m   {}\x1b[0m", option);
+            let option = StyledText::new(option).fg(Color::Green);
+            println!("   {}", option);
         } else {
             println!("   {}", option);
         }
@@ -211,27 +220,27 @@ fn populate(options: &[&str], matrix: Option<&[bool]>, cursor: usize) {
 /// Enumeration representing different types of spinners.
 #[derive(Debug, Clone)]
 pub enum SpinnerType {
+    /// Spinner with characters `/` `-` `\` `|`.
     Standard,
+    /// Spinner with dots `.` `..` `...` `.....`.
     Dots,
+    /// Spinner with box characters `▌` `▀` `▐` `▄`.
     Box,
+    /// Spinner with flip characters `_` `_` `_` `-` `\` `'` `´` `-` `_` `_` `_`.
     Flip,
-    Custom(Vec<&'static str>),
+    /// Custom spinner with user-defined frames.
+    Custom(&'static [&'static str]),
 }
 
 impl SpinnerType {
-    /// Converts the spinner type to a vector of frames, gives back the following variants:
-    ///  - `SpinnerType::Standard`: Standard spinner with characters / - \ |.
-    ///  - `SpinnerType::Dots`: Spinner with dots . .. ... .....
-    ///  - `SpinnerType::Box`: Spinner with box characters ▌ ▀ ▐ ▄.
-    ///  - `SpinnerType::Flip`: Spinner with flip characters _ _ _ - \ ' ´ - _ _ _.
-    ///  - `SpinnerType::Custom(frames)`: Custom spinner with user-defined frames.
-    pub fn to_frames(&self) -> Vec<&'static str> {
+    /// Returns the frames of the spinner type.
+    pub fn frames(&self) -> &'static [&'static str] {
         match self {
-            SpinnerType::Standard => vec!["/", "-", "\\", "|"],
-            SpinnerType::Dots => vec![".", "..", "...", "....", "...", ".."],
-            SpinnerType::Box => vec!["▌", "▀", "▐", "▄"],
-            SpinnerType::Flip => vec!["_", "_", "_", "-", "`", "`", "'", "´", "-", "_", "_", "_"],
-            SpinnerType::Custom(frames) => frames.to_owned(),
+            SpinnerType::Standard => &["/", "-", "\\", "|"],
+            SpinnerType::Dots => &[".", "..", "...", "....", "...", ".."],
+            SpinnerType::Box => &["▌", "▀", "▐", "▄"],
+            SpinnerType::Flip => &["_", "_", "_", "-", "`", "`", "'", "´", "-", "_", "_", "_"],
+            SpinnerType::Custom(frames) => frames,
         }
     }
 }
@@ -246,7 +255,7 @@ impl SpinnerType {
 /// - `time`: A floating-point number representing the duration of the spinner animation in seconds.
 /// - `spinner_type`: The type of spinner to display.
 pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
-    let frames = spinner_type.to_frames();
+    let frames = spinner_type.frames();
     let mut i = 0;
 
     while time > 0.0 {

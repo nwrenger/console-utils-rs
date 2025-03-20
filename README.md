@@ -16,7 +16,7 @@ To use Console Utils in your Rust project, you can add the following dependency 
 
 ```toml
 [dependencies]
-console-utils = "1.6.1"
+console-utils = "1.7.0"
 ```
 
 After adding the dependency, you can import the modules you need in your Rust code. For example:
@@ -68,6 +68,21 @@ let selected_indices = multiselect("Select options:", &options);
 println!("Selected indices: {:?}", selected_indices);
 ```
 
+### Text styling
+
+```rust
+use console_utils::styled::{StyledText, Color};
+
+let text = StyledText::new("Hello, world!")
+    .fg(Color::Red)
+    .bg(Color::Black)
+    .bold()
+    .underline();
+
+// Prints now a `Hello, world!` with red, bold and underlined text on a black background
+println!("{}", text);
+```
+
 ### Console Control
 
 ```rust
@@ -96,7 +111,7 @@ use console_utils::input::{spinner, SpinnerType};
 // Display a standard spinner for 3 seconds
 spinner(3.0, SpinnerType::Standard);
 // Display a custom spinner for 2 seconds
-spinner(2.0, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]));
+spinner(2.0, SpinnerType::Custom(&["1", "2", "3", "4", "3", "2"]));
 ```
 
 ### Gradual String Reveal

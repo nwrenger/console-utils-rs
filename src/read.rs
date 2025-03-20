@@ -5,38 +5,32 @@
 
 use std::io;
 
-/// # Key Enum
-///
-/// The `Key` enum represents different keyboard keys that can be captured by the
-/// `read_key` function.
-///
-/// - `ArrowUp`: Represents the arrow up key.
-/// - `ArrowDown`: Represents the arrow down key.
-/// - `ArrowRight`: Represents the arrow right key.
-/// - `ArrowLeft`: Represents the arrow left key.
-/// - `Enter`: Represents the Enter/Return key.
-/// - `Tab`: Represents the Tab key.
-/// - `Backspace`: Represents the Backspace key.
-/// - `Escape`: Represents the Escape key.
-/// - `Char(char)`: Represents any printable character on the keyboard.
+/// Represents different keyboard keys that can be captured by the `read_key` function.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Key {
+    /// Arrow up key.
     ArrowUp,
+    /// Arrow down key.
     ArrowDown,
+    /// Arrow right key.
     ArrowRight,
+    /// Arrow left key.
     ArrowLeft,
+    /// Enter/Return key.
     Enter,
+    /// Tab key.
     Tab,
+    /// Backspace key.
     Backspace,
+    /// Escape key.
     Escape,
+    /// Any printable character on the keyboard.
     Char(char),
+    /// Any unrecognized key.
     Unknown,
 }
 
-/// # Read Key Function
-///
-/// The `read_key` function reads a single key event from the console input
-/// and returns a `Key` enum.
+/// Reads a single key event from the console input and returns a `Key` enum.
 pub fn read_key() -> io::Result<Key> {
     #[cfg(windows)]
     {
@@ -49,10 +43,8 @@ pub fn read_key() -> io::Result<Key> {
     }
 }
 
-/// # Windows Module
-///
-/// The `windows` module contains Windows-specific implementation details for reading
-/// keyboard input. It utilizes the `windows-sys` crate to interact with Windows Console API.
+/// Contains Windows-specific implementation details for reading keyboard
+/// input. It utilizes the `windows-sys` crate to interact with Windows Console API.
 #[cfg(windows)]
 pub mod windows {
     use super::Key;
@@ -103,10 +95,8 @@ pub mod windows {
     }
 }
 
-/// # Unix Module
-///
-/// The `unix` module contains Unix-specific implementation details for reading
-/// keyboard input. It uses the `libc` crate to manipulate terminal attributes.
+/// Contains Unix-specific implementation details for reading keyboard
+/// input. It uses the `libc` crate to manipulate terminal attributes.
 #[cfg(unix)]
 pub mod unix {
     use libc::{tcgetattr, tcsetattr, ECHO, ICANON, STDIN_FILENO, TCSANOW};
@@ -115,7 +105,7 @@ pub mod unix {
 
     use super::Key;
 
-    // Internal function for disabling line buffering.
+    // Disables line buffering.
     fn disable_line_buffering() -> io::Result<()> {
         let mut termios = unsafe { mem::zeroed() };
         if unsafe { tcgetattr(STDIN_FILENO, &mut termios) } != 0 {
@@ -131,7 +121,7 @@ pub mod unix {
         Ok(())
     }
 
-    // Internal function for enabling line buffering.
+    // Enables line buffering.
     fn enable_line_buffering() -> io::Result<()> {
         let mut termios = unsafe { mem::zeroed() };
         if unsafe { tcgetattr(STDIN_FILENO, &mut termios) } != 0 {
@@ -147,7 +137,7 @@ pub mod unix {
         Ok(())
     }
 
-    // Internal function for reading a key from the console.
+    // Reads a key from the console.
     pub(crate) fn read_key() -> io::Result<Key> {
         let mut buffer = [0; 3];
         disable_line_buffering()?;

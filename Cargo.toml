@@ -1,6 +1,6 @@
 [package]
 name = "console-utils"
-version = "1.6.1"
+version = "1.7.0"
 edition = "2021"
 authors = ["Nils Wrenger <nils@wrenger.net>"]
 description = "Simple CLI Input and Control Utilities"
@@ -14,7 +14,7 @@ license = "MIT"
 [lib]
 
 [target.'cfg(unix)'.dependencies.libc]
-version = "0.2.169"
+version = "0.2.171"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 version = "0.59.0"

@@ -5,13 +5,14 @@ use console_utils::{
     control::{clear_line, flush, move_cursor_down, move_cursor_up, Visibility},
     input::{input, multiselect, reveal, select, spinner, Empty, SpinnerType},
     read::{read_key, Key},
+    styled::{Color, StyledText},
 };
 
 #[test]
 #[ignore = "user inputs"]
 fn user_input() {
     // Run the function
-    let result = input::<Empty<u8>>("Enter something");
+    let result = input::<Empty<u8>>("Enter something (integer)");
 
     // Input anything
 
@@ -50,6 +51,7 @@ fn user_select() {
 fn user_read_key() {
     // This test assumes a key press event for the 'a' key
     // You may need to adapt this based on the actual behavior of the platform implementation
+    println!("Input 'a' key");
 
     // Read the key
     let key = read_key().unwrap();
@@ -62,7 +64,7 @@ fn spinner_visible() {
     spinner(1.0, SpinnerType::Standard);
 
     // Custom Spinner
-    spinner(1.0, SpinnerType::Custom(vec!["1", "2", "3", "4", "3", "2"]))
+    spinner(1.0, SpinnerType::Custom(&["1", "2", "3", "4", "3", "2"]))
 }
 
 #[test]
@@ -122,4 +124,37 @@ fn r#move() {
 
     // Clear the current line.
     clear_line();
+}
+
+#[test]
+fn color() {
+    // fg
+    println!("{}", StyledText::new("This is red").fg(Color::BrightRed));
+
+    // bg
+    println!(
+        "{}",
+        StyledText::new("This has red bg").bg(Color::BrightRed)
+    );
+
+    // all variants
+    println!("{}", StyledText::new("This is bold").bold());
+    println!("{}", StyledText::new("This is italic").italic());
+    println!("{}", StyledText::new("This is underline").underline());
+    println!("{}", StyledText::new("This blinks").blink());
+    println!("{}", StyledText::new("This has reversed colors").reverse());
+    println!(
+        "{}",
+        StyledText::new("This is strikethrough").strikethrough()
+    );
+
+    // some combined
+    println!(
+        "{}",
+        StyledText::new("This is special")
+            .fg(Color::BrightCyan)
+            .bg(Color::Yellow)
+            .bold()
+            .blink()
+    );
 }
