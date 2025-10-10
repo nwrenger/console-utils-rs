@@ -18,7 +18,7 @@ use crate::{
 
 /// A Wrapper for allowing empty inputs which then return `None`.
 #[derive(Clone, Copy, Debug, Default)]
-pub struct Empty<T>(Option<T>);
+pub struct Empty<T>(pub Option<T>);
 
 impl<T> FromStr for Empty<T>
 where
