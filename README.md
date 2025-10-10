@@ -16,7 +16,7 @@ To use Console Utils in your Rust project, you can add the following dependency 
 
 ```toml
 [dependencies]
-console-utils = "1.7.0"
+console-utils = "1.8.0"
 ```
 
 After adding the dependency, you can import the modules you need in your Rust code. For example:
@@ -31,16 +31,21 @@ use console_utils::control::{flush, clear_line};
 ### Reading User Input
 
 ```rust, no_run
-use console_utils::input::input;
-// Read user input as a string
-let user_input: String = input("Enter something: ");
+use console_utils::input::{input, Empty};
 
-println!("You entered: {}", user_input);
+// Read user input as a plain string
+let text: String = input("Enter something: ");
+println!("You entered: {}", text);
+
+// Or read user input as a u8; returns Empty(None) if left blank.
+let number: Empty<u8> = input("Enter a number (or press Enter to skip): ");
+println!("You entered: {:?}", number);
 ```
 
 ### Selecting Options
 
 #### Single Option
+
 ```rust, no_run
 use console_utils::input::select;
 let options = [
@@ -55,6 +60,7 @@ println!("Selected option: {}", options[selected_index]);
 ```
 
 #### Multiple Options
+
 ```rust, no_run
 use console_utils::input::multiselect;
 let options = [
@@ -114,12 +120,14 @@ spinner(3.0, SpinnerType::Standard);
 spinner(2.0, SpinnerType::Custom(&["1", "2", "3", "4", "3", "2"]));
 ```
 
-### Gradual String Reveal
+### Skippable Gradual String Reveal
 
 ```rust
-use console_utils::input::reveal;
-// Display "Hello World!" with a time interval of 0.1 seconds between each character
-reveal("Hello World!", 0.1);
+use console_utils::{input::reveal, read::Key};
+
+// Displays "Hello World!" with 0.1s between characters.
+// Tip: Press/hold **Tab** to fast-forward the reveal (≈ time_between / 50 per char).
+reveal("Hello World!", 0.1, Some(Key::Tab));
 ```
 
 For more detailed documentation, please refer to the [generated Rust Docs](https://docs.rs/console-utils/latest/console_utils/).

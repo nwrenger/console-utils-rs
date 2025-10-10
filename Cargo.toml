@@ -1,6 +1,6 @@
 [package]
 name = "console-utils"
-version = "1.7.0"
+version = "1.8.0"
 edition = "2021"
 authors = ["Nils Wrenger <nils@wrenger.net>"]
 description = "Simple CLI Input and Control Utilities"
@@ -14,13 +14,14 @@ license = "MIT"
 [lib]
 
 [target.'cfg(unix)'.dependencies.libc]
-version = "0.2.171"
+version = "0.2.177"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.59.0"
+version = "0.61.2"
 default-features = false
 features = [
     "Win32_Foundation",
     "Win32_System_Console",
+    "Win32_System_Threading",
     "Win32_UI_Input_KeyboardAndMouse",
 ]

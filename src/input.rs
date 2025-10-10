@@ -1,22 +1,24 @@
 //! Input Utilities
 //!
 //! This module provides functions for handling user input in console applications, including reading user input,
-//! selecting options from a list, displaying spinners, and gradually revealing strings.
-use std::{io, str::FromStr, thread, time::Duration};
+//! selecting options from a list, displaying spinners, and gradually revealing, skippable strings.
+
+use std::{
+    io,
+    str::FromStr,
+    thread,
+    time::{Duration, Instant},
+};
 
 use crate::{
     control::{clear_line, flush, move_cursor_down, move_cursor_up, Visibility},
-    read::{read_key, Key},
+    read::{key_pressed_within, read_key, Key},
     styled::{Color, StyledText},
 };
 
-/// A Wrapper for empty inputs returning a None
-#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Debug, Hash, Default)]
-pub enum Empty<T> {
-    Some(T),
-    #[default]
-    None,
-}
+/// A Wrapper for allowing empty inputs which then return `None`.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct Empty<T>(Option<T>);
 
 impl<T> FromStr for Empty<T>
 where
@@ -27,9 +29,9 @@ where
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.trim().is_empty() {
-            Ok(Empty::None)
+            Ok(Empty(None))
         } else {
-            s.trim().parse::<T>().map(Empty::Some)
+            s.trim().parse::<T>().map(|v| Empty(Some(v)))
         }
     }
 }
@@ -274,18 +276,83 @@ pub fn spinner(mut time: f64, spinner_type: SpinnerType) {
     clear_line();
 }
 
+const FAST_GRACE_MS: u64 = 120;
+const FAST_GRACE: Duration = Duration::from_millis(FAST_GRACE_MS);
+
 /// Reveals a string gradually, printing one character at a time with a specified time interval.
 ///
-/// This function is useful for creating a typing effect or slowly displaying information to the user.
+/// Useful for typing effects or slow reveals. Can be sped up with the optional skip key (≈ time_between / 50).
 ///
 /// # Arguments
 ///
-/// * `str` - The string to reveal gradually. Add here `\n` for a new line.
-/// * `time_between` - The time interval (in seconds) between each revealed character.
-pub fn reveal(str: &str, time_between: f64) {
-    for i in 0..str.len() {
-        print!("{}", str.chars().nth(i).unwrap_or(' '));
+/// - `str` - The string to reveal gradually. Include `\n` for new lines.
+/// - `time_between` - The time interval (in seconds) between each revealed character.
+/// - `skip_key` - If `Some(key)`, pressing this key will temporarily speed up
+///   the reveal rate. The speed-up lasts briefly after the last press (a grace period of 120
+///   milliseconds) before returning to the normal pace. Holding or repeatedly pressing the key will
+///   extend the fast-forward window. If `None`, the reveal speed cannot be changed.
+pub fn reveal(str: &str, time_between: f64, skip_key: Option<Key>) {
+    // Sanitize input
+    let tb = if time_between.is_finite() && time_between >= 0.0 {
+        time_between
+    } else {
+        0.0
+    };
+
+    let normal_delay = Duration::from_secs_f64(tb);
+
+    // throttle while fast-forwarding: time_between / 50 (clamped to >= 1ms)
+    let fast_delay = {
+        let d = tb / 50.0;
+        if d < 0.001 {
+            Duration::from_millis(1)
+        } else {
+            Duration::from_secs_f64(d)
+        }
+    };
+
+    // If Some(t), we are in fast mode until `t`
+    let mut fast_until: Option<Instant> = None;
+
+    for ch in str.chars() {
+        print!("{ch}");
         flush();
-        thread::sleep(Duration::from_secs_f64(time_between));
+
+        // Decide current delay based on whether fast window is active
+        let now = Instant::now();
+        let fast_active = fast_until.map_or(false, |t| now < t);
+        let delay = if fast_active {
+            fast_delay
+        } else {
+            normal_delay
+        };
+
+        if skip_key.is_none() {
+            std::thread::sleep(delay);
+            continue;
+        }
+
+        // Wait up to `delay`, reacting to Tab to (re)enter/extend fast mode
+        match key_pressed_within(delay) {
+            Ok(Some(k)) if Some(k.clone()) == skip_key => {
+                // Enter/extend fast mode
+                fast_until = Some(Instant::now() + FAST_GRACE);
+
+                // Drain immediate Tabs (zero wait) to keep extending the window
+                while let Ok(Some(k2)) = key_pressed_within(Duration::from_millis(0)) {
+                    if Some(k2) == skip_key {
+                        fast_until = Some(Instant::now() + FAST_GRACE);
+                    }
+                }
+            }
+            _ => {
+                // Timer expired; if we were in fast mode and grace elapsed, leave it
+                if let Some(t) = fast_until {
+                    if Instant::now() >= t {
+                        fast_until = None;
+                    }
+                }
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@
 //!
 //! This module provides functions for controlling the console, including flushing the output buffer,
 //! clearing lines, and moving the cursor in various directions.
+
 use std::io::{self, Write};
 
 /// Flushes the output buffer, ensuring that all content is written to the console.
