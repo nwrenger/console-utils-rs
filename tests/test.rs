@@ -70,7 +70,7 @@ fn spinner_visible() {
 #[test]
 fn reveal_visible() {
     // Give the fn the str, time and skip key. Press `Tab` to skip.
-    reveal(&"Hello World!".repeat(20), 0.01, Some(Key::Tab));
+    reveal(&"Hello World!".repeat(20), 0.01, Some((Key::Tab, 0.)));
 }
 
 #[test]

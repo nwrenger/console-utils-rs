@@ -16,7 +16,7 @@ To use Console Utils in your Rust project, you can add the following dependency 
 
 ```toml
 [dependencies]
-console-utils = "1.8.1"
+console-utils = "1.8.2"
 ```
 
 After adding the dependency, you can import the modules you need in your Rust code. For example:
@@ -126,8 +126,8 @@ spinner(2.0, SpinnerType::Custom(&["1", "2", "3", "4", "3", "2"]));
 use console_utils::{input::reveal, read::Key};
 
 // Displays "Hello World!" with 0.1s between characters.
-// Tip: Press/hold **Tab** to fast-forward the reveal (≈ time_between / 50 per char).
-reveal("Hello World!", 0.1, Some(Key::Tab));
+// Tip: Press/hold **Tab** to fast-forward the reveal by decreasing the time between characters to 0.001s.
+reveal("Hello World!", 0.1, Some((Key::Tab, 0.001)));
 ```
 
 For more detailed documentation, please refer to the [generated Rust Docs](https://docs.rs/console-utils/latest/console_utils/).

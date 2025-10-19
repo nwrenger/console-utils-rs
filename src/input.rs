@@ -281,34 +281,36 @@ const FAST_GRACE: Duration = Duration::from_millis(FAST_GRACE_MS);
 
 /// Reveals a string gradually, printing one character at a time with a specified time interval.
 ///
-/// Useful for typing effects or slow reveals. Can be sped up with the optional skip key (≈ time_between / 50).
+/// Useful for typing effects or slow reveals. Can be sped up with the optional skip key and time.
 ///
 /// # Arguments
 ///
 /// - `str` - The string to reveal gradually. Include `\n` for new lines.
 /// - `time_between` - The time interval (in seconds) between each revealed character.
-/// - `skip_key` - If `Some(key)`, pressing this key will temporarily speed up
-///   the reveal rate. The speed-up lasts briefly after the last press (a grace period of 120
+/// - `skip` - If `Some((key, faster_time_between))`, pressing this `key` will temporarily speed up
+///   the reveal rate by the `faster_time_between`. The speed-up lasts briefly after the last press (a grace period of 120
 ///   milliseconds) before returning to the normal pace. Holding or repeatedly pressing the key will
 ///   extend the fast-forward window. If `None`, the reveal speed cannot be changed.
-pub fn reveal(str: &str, time_between: f64, skip_key: Option<Key>) {
+pub fn reveal(str: &str, time_between: f64, skip: Option<(Key, f64)>) {
     // Sanitize input
-    let tb = if time_between.is_finite() && time_between >= 0.0 {
+    let clamped = if time_between.is_finite() && time_between >= 0.0 {
         time_between
     } else {
         0.0
     };
+    let normal_delay = Duration::from_secs_f64(clamped);
 
-    let normal_delay = Duration::from_secs_f64(tb);
-
-    // throttle while fast-forwarding: time_between / 50 (clamped to >= 1ms)
-    let fast_delay = {
-        let d = tb / 50.0;
-        if d < 0.001 {
-            Duration::from_millis(1)
+    // Precompute fast delay if skipping is enabled
+    let (skip_key, fast_delay) = if let Some((key, fast_time_between)) = skip {
+        let clamped = if fast_time_between.is_finite() && fast_time_between >= 0.0 {
+            fast_time_between
         } else {
-            Duration::from_secs_f64(d)
-        }
+            0.0
+        };
+        let delay = Duration::from_secs_f64(clamped);
+        (Some(key), delay)
+    } else {
+        (None, Duration::from_millis(0))
     };
 
     // If Some(t), we are in fast mode until `t`
@@ -327,21 +329,24 @@ pub fn reveal(str: &str, time_between: f64, skip_key: Option<Key>) {
             normal_delay
         };
 
-        if skip_key.is_none() {
+        // No skip configured → sleep the chosen delay
+        let Some(skip_key) = skip_key.clone() else {
             std::thread::sleep(delay);
             continue;
-        }
+        };
 
         // Wait up to `delay`, reacting to Tab to (re)enter/extend fast mode
         match key_pressed_within(delay) {
-            Ok(Some(k)) if Some(k.clone()) == skip_key => {
+            Ok(Some(k)) if k == skip_key => {
                 // Enter/extend fast mode
                 fast_until = Some(Instant::now() + FAST_GRACE);
 
                 // Drain immediate Tabs (zero wait) to keep extending the window
                 while let Ok(Some(k2)) = key_pressed_within(Duration::from_millis(0)) {
-                    if Some(k2) == skip_key {
+                    if k2 == skip_key {
                         fast_until = Some(Instant::now() + FAST_GRACE);
+                    } else {
+                        break;
                     }
                 }
             }
