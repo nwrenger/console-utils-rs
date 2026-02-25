@@ -9,7 +9,7 @@ categories = ["command-line-utilities", "command-line-interface"]
 rust-version = "1.63.0"
 repository = "https://github.com/nwrenger/console-utils-rs"
 readme = "README.md"
-license = "MIT"
+license = "GPL-3.0-or-later"
 
 [lib]
 
